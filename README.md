@@ -1,1 +1,1 @@
-# NSI_Labyrinthe
+# NSI_TERM_1
