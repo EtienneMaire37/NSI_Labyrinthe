@@ -11,7 +11,7 @@ renderer = Renderer()
 
 map1 = Map()
 map1.load_from_list(MAP1, MAP1_SIZE_X, MAP1_SIZE_Y,
-                    ["RESOURCES\\contener.png", "RESOURCES\\585.png", "RESOURCES\\contener_blue.png", "RESOURCES\\588.png", "RESOURCES\\082.png"],
+                    ["RESOURCES/contener.png", "RESOURCES/585.png", "RESOURCES/contener_blue.png", "RESOURCES/588.png", "RESOURCES/082.png"],
                     3, 4)
 
 while True:
