@@ -21,7 +21,7 @@ WALL_HIGH = 1.8               # Point haut du mur
 MOVE_SPEED = 2              # Vitesse de déplacement
 ENTITY_MOVE_SPEED = 1       # Vitesse des entités
 ENTITY_DAMAGE = 5
-ROTATION_SPEED = .7          # Vitesse de rotation
+ROTATION_SPEED = 1.5          # Vitesse de rotation
 LOAD_TIME = 2               # Temps de chargement
 
 RESOLUTION_X = 256          # Résolution de la fenêtre
@@ -40,8 +40,8 @@ FILL_COLOR = (0.529, 0.808, 0.922)
 AMBIENT_LIGHT = (0.8, 0.9, 1)
 
 # Map de test
-MAP1_SIZE_X = 16
-MAP1_SIZE_Y = 16
+MAP1_SIZE_X = 32 # 256
+MAP1_SIZE_Y = 32 # 256
 '''MAP1 = (
     "11111111111111111"
     "1               1"
