@@ -40,9 +40,9 @@ FILL_COLOR = (0.529, 0.808, 0.922)
 AMBIENT_LIGHT = (0.8, 0.9, 1)
 
 # Map de test
-MAP1_SIZE_X = 17
-MAP1_SIZE_Y = 15
-MAP1 = (
+MAP1_SIZE_X = 16
+MAP1_SIZE_Y = 16
+'''MAP1 = (
     "11111111111111111"
     "1               1"
     "1      111  2   1"
@@ -58,6 +58,6 @@ MAP1 = (
     "1   2  333   22 1"
     "1               1"
     "11111111111111111"
-)
+)'''
 
-'''MAP1 = maze_to_map(32, 32)'''
+MAP1 = maze_to_map(MAP1_SIZE_X, MAP1_SIZE_Y)
