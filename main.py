@@ -7,10 +7,12 @@ from GAME.defines import *
 game = Game(MAP1_SIZE_X / 2, MAP1_SIZE_Y / 2)
 renderer = Renderer()
 
+# print(maze_to_map(32, 32))
+
 map1 = Map()
-map1.load_from_list(MAP1, MAP1_SIZE_X, MAP1_SIZE_Y, 
-                    ["RESOURCES\\contener.png", "RESOURCES\\585.png", "RESOURCES\\contener_blue.png", "RESOURCES\\588.png"], 
-                    3)
+map1.load_from_list(MAP1, MAP1_SIZE_X, MAP1_SIZE_Y,
+                    ["RESOURCES\\contener.png", "RESOURCES\\585.png", "RESOURCES\\contener_blue.png", "RESOURCES\\588.png", "RESOURCES\\082.png"],
+                    3, 4)
 
 while True:
     game.handleEvents()
