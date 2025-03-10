@@ -58,14 +58,16 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                 normal = [0, step_y]
             normalize_vector2d(normal)
             
-            wall_height = int(RESOLUTION_Y / max(wall_dist * project_dist, 0.01))   # Hauteur du mur à afficher
+            wall_height = RESOLUTION_Y / max(wall_dist * project_dist, 0.01)   # Hauteur du mur à afficher
+            wall_low_y = int(HALF_RES_Y - (wall_height / 2 * (WALL_LOW - player_z)))
+            wall_high_y = int(HALF_RES_Y - (wall_height / 2 * (WALL_HIGH - player_z)))
 
             shade = LIGHT_INTENSITY / (max(0.01, (wall_dist + LIGHT_OFFSET)))**2 * max(0, dot_2d(normal, (dX, dY)))   # Calcul de l'éclairage
-            for v in prange(wall_height):
-                y = HALF_RES_Y - wall_height // 2 + v
+            for y in prange(wall_high_y, wall_low_y + 1):
+                v = (y - wall_high_y) / (wall_low_y - wall_high_y + 1)
                 if 0 <= y < RESOLUTION_Y: 
                     tex_idx = int(ord(wall_type) - ord('1')) 
-                    uv = ((off_x + off_y) % 1, v / wall_height)
+                    uv = ((off_x + off_y) % 1, v)
 
                     color = (1, 0, 0)
 
@@ -81,9 +83,9 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                         
                     buffer[ray][y] = color
                     
-            for i in prange(HALF_RES_Y - wall_height // 2 + 1):
+            for i in prange(wall_high_y + 1):
                 if _map_ceil_tex_idx < len(_map_textures):
-                    z = RESOLUTION_Y / (2 * ((RESOLUTION_Y / 2) - i)) / project_dist
+                    z = -(HALF_RES_Y / (i - HALF_RES_Y) / project_dist) * (WALL_HIGH - player_z)
                     dX = -math.sin(ray_angle - HALF_FOV) 
                     dY = math.cos(ray_angle - HALF_FOV) 
                     p_x = dX * z + player_x
@@ -105,9 +107,9 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     buffer[ray][i] = gamma_correct(tonemap_color((float(shade * tex[0]), float(shade * tex[1]), float(shade * tex[2]))))
                 else:
                     buffer[ray][i] = (0, 0, 0)
-            for i in prange(HALF_RES_Y + wall_height // 2, RESOLUTION_Y):
+            for i in prange(wall_low_y + 1, RESOLUTION_Y):
                 if _map_floor_tex_idx < len(_map_textures):
-                    z = RESOLUTION_Y / (2 * (i - (RESOLUTION_Y / 2)) * project_dist)
+                    z = - (HALF_RES_Y / (i - HALF_RES_Y) / project_dist) * (WALL_LOW - player_z)
                     dX = -math.sin(ray_angle - HALF_FOV) 
                     dY = math.cos(ray_angle - HALF_FOV) 
                     p_x = dX * z + player_x
