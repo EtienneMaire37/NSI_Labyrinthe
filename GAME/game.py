@@ -3,7 +3,6 @@ import math
 import sys
 from GAME.defines import *
 from GAME.renderer import normalize_vector2d
-from GAME.rays import ray_entities_intersection
 import GAME.map as mp
 
 class Game:

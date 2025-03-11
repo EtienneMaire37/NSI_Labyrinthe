@@ -92,7 +92,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     p_y = dY * z + player_y
                     uv = (p_x % 1, p_y % 1)
 
-                    shade = LIGHT_INTENSITY / (max(0.01, (z + LIGHT_OFFSET)))**3 # Approximation puisqu'on ne calcule pas la normale
+                    shade = LIGHT_INTENSITY / (max(0.01, (z + LIGHT_OFFSET)))**3 # Approximation puisqu'on ne calcule pas la normale pour le plafond
 
                     tex_width = _map_textures_sizes[_map_ceil_tex_idx][1]
                     tex_height = _map_textures_sizes[_map_ceil_tex_idx][0]
@@ -116,7 +116,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     p_y = dY * z + player_y
                     uv = (p_x % 1, p_y % 1)
 
-                    shade = LIGHT_INTENSITY / (max(0.01, (z + LIGHT_OFFSET)))**3 # Approximation puisqu'on ne calcule pas la normale
+                    shade = LIGHT_INTENSITY / (max(0.01, (z + LIGHT_OFFSET)))**3 # Approximation puisqu'on ne calcule pas la normale pour le sol
 
                     tex_width = _map_textures_sizes[_map_floor_tex_idx][1]
                     tex_height = _map_textures_sizes[_map_floor_tex_idx][0]
