@@ -77,24 +77,34 @@ def maze_to_map(sz_x: int, sz_y: int):
             x_cell = j + 1
             if maze.laby[y_cell][x_cell].wallW:
                 pos = (x_cell + y_cell * sz_x) * 2 - 1 - sz_x
-                map_grid[pos] = '1'
+                map_grid[pos] = '3'
             if maze.laby[y_cell][x_cell].wallS:
                 pos = (x_cell + y_cell * sz_x) * 2
-                map_grid[pos] = '1'
+                map_grid[pos] = '3'
             if maze.laby[y_cell][x_cell].wallW and maze.laby[y_cell][x_cell].wallS:
                 pos = (x_cell + y_cell * sz_x) * 2 + sz_x - 1 - sz_x
-                map_grid[pos] = '1'
+                map_grid[pos] = '3'
 
     for y in range(sz_y):
         for x in range(sz_x):
             if x == 0 or x == sz_x - 1 or y == 0 or y == sz_y - 1:
-                map_grid[x + y * sz_x] = str(2 + ((x + y) % 2))
+                map_grid[x + y * sz_x] = str(4 + ((x + y) % 2))
 
-    map_grid[sz_x // 2 + sz_x * sz_y // 2] = ' '
-    map_grid[sz_x // 2 + sz_x * sz_y // 2 + 1] = ' '
-    map_grid[sz_x // 2 + sz_x * sz_y // 2 + sz_x] = ' '
-    map_grid[sz_x // 2 + sz_x * sz_y // 2 + sz_x + 1] = ' '
+    rad = 3
+    for i in range(-rad, rad + 1):
+        for j in range(-rad, rad + 1):
+            pos = sz_x // 2 + sz_x * (sz_y // 2 + j + 1) + i + 1
+            if j == -rad or j == rad or  i == -rad or i == rad:
+                map_grid[pos] = str(4 + 3 * (1 - (pos % 2)))
+            else:
+                map_grid[pos] = ' '
 
-    # for i in range(sz_y):
-    #     print(map_grid[i * sz_x:i * sz_x + sz_x])
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + rad + 1] = ' '
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + rad + 2] = ' '
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = '6'
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + 1] = '8'
+
+    for i in range(sz_y):
+        print(map_grid[i * sz_x:i * sz_x + sz_x])
+
     return map_grid

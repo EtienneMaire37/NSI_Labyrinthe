@@ -25,7 +25,7 @@ class Game:
         self.player_x = _player_x
         self.player_y = _player_y
         self.player_z = 0
-        self.player_angle = 0
+        self.player_angle = math.pi / 2
         self.mouse_mov = (0, 0)
         self.mouse_moved = False
         self.total_time = 0
@@ -58,12 +58,6 @@ class Game:
 
         if self.mouse_moved:
             self.player_angle += self.mouse_mov[0] * delta_time * ROTATION_SPEED / 10
-
-        # Handle ZSDQ movement
-        if keys[pygame.K_LEFT]:
-            self.player_angle -= ROTATION_SPEED * delta_time
-        if keys[pygame.K_RIGHT]:
-            self.player_angle += ROTATION_SPEED * delta_time
 
         if keys[pygame.K_z]:
             self.player_x += -1 * math.sin(self.player_angle) * MOVE_SPEED * delta_time
