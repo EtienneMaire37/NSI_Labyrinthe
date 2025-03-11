@@ -67,29 +67,28 @@ class Labyrinthe:
 def maze_to_map(sz_x: int, sz_y: int):
     mz_sz_x = sz_x // 2
     mz_sz_y = sz_y // 2
-    maze = Labyrinthe(mz_sz_x, mz_sz_y)
+    maze = Labyrinthe(mz_sz_x + 1, mz_sz_y + 1)
     maze.generer()
     map_grid = [' '] * (sz_x * sz_y)
 
-    for i in range(mz_sz_y - 2):
-        for j in range(mz_sz_x - 2):
+    for i in range(mz_sz_y - 1):
+        for j in range(mz_sz_x - 1):
             y_cell = i + 1
             x_cell = j + 1
-            cell = maze.laby[y_cell][x_cell]
-            if cell.wallW:
-                pos = (x_cell + y_cell * sz_x) * 2 - 1
+            if maze.laby[y_cell][x_cell].wallW:
+                pos = (x_cell + y_cell * sz_x) * 2 - 1 - sz_x
                 map_grid[pos] = '1'
-            if cell.wallS:
-                pos = (x_cell + y_cell * sz_x) * 2 + sz_x
+            if maze.laby[y_cell][x_cell].wallS:
+                pos = (x_cell + y_cell * sz_x) * 2
                 map_grid[pos] = '1'
-            if cell.wallW and cell.wallS:
-                pos = (x_cell + y_cell * sz_x) * 2 + sz_x - 1
+            if maze.laby[y_cell][x_cell].wallW and maze.laby[y_cell][x_cell].wallS:
+                pos = (x_cell + y_cell * sz_x) * 2 + sz_x - 1 - sz_x
                 map_grid[pos] = '1'
 
     for y in range(sz_y):
         for x in range(sz_x):
             if x == 0 or x == sz_x - 1 or y == 0 or y == sz_y - 1:
-                map_grid[x + y * sz_x] = '1'
+                map_grid[x + y * sz_x] = str(2 + ((x + y) % 2))
 
     map_grid[sz_x // 2 + sz_x * sz_y // 2] = ' '
     map_grid[sz_x // 2 + sz_x * sz_y // 2 + 1] = ' '
