@@ -13,7 +13,7 @@ def main():
 
     map1 = Map()
     map1.load_from_list(MAP1, MAP1_SIZE_X, MAP1_SIZE_Y,
-                        ["RESOURCES/contener.png", "RESOURCES/585.png", "RESOURCES/contener_blue.png", "RESOURCES/588.png", "RESOURCES/082.png"],
+                        ["RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/TILE_2C.PNG", "RESOURCES/082.png"],
                         3, 4)
 
     while True:
