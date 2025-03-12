@@ -23,6 +23,7 @@ ENTITY_MOVE_SPEED = 1       # Vitesse des entités
 ENTITY_DAMAGE = 5
 ROTATION_SPEED = 1.5          # Vitesse de rotation
 LOAD_TIME = 2               # Temps de chargement
+MAX_PLAYER_INTERACTION_RANGE = 2    # Distance maximum d'interaction
 
 RESOLUTION_X = 256          # Résolution de la fenêtre
 RESOLUTION_Y = int(RESOLUTION_X * SCREEN_HEIGHT / SCREEN_WIDTH)
@@ -38,4 +39,4 @@ HALF_RES_Y = RESOLUTION_Y // 2
 MAP1_SIZE_X = 33 # 257
 MAP1_SIZE_Y = 33 # 257
 
-MAP1 = maze_to_map(MAP1_SIZE_X, MAP1_SIZE_Y)
+MAP1, MAP1_INTERACT = maze_to_map(MAP1_SIZE_X, MAP1_SIZE_Y)

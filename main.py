@@ -12,7 +12,7 @@ def main():
     # print(maze_to_map(32, 32))
 
     map1 = Map()
-    map1.load_from_list(MAP1, MAP1_SIZE_X, MAP1_SIZE_Y,
+    map1.load_from_list(MAP1, MAP1_INTERACT, MAP1_SIZE_X, MAP1_SIZE_Y,
                         ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
 
     while True:

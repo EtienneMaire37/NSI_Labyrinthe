@@ -129,7 +129,6 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     _map_textures[_map_floor_tex_idx][idx_x, idx_y, 2] / 255)
 
                     buffer[ray][i] = gamma_correct(tonemap_color((float(shade * tex[0]), float(shade * tex[1]), float(shade * tex[2]))))
-    buffer[HALF_RES_X][HALF_RES_Y] = (1 - buffer[HALF_RES_X][HALF_RES_Y][0], 1 - buffer[HALF_RES_X][HALF_RES_Y][1], 1 - buffer[HALF_RES_X][HALF_RES_Y][2])
 
 # Gère tout les calculs visuels
 class Renderer:
@@ -137,6 +136,26 @@ class Renderer:
         self.buffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 3))
         self.zbuffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 1))
 
+    def invert_pixel(self, x: int, y: int):
+        self.buffer[x][y] = (1 - self.buffer[x][y][0], 1 - self.buffer[x][y][1], 1 - self.buffer[x][y][2])
+
     def update(self, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         render_frame(self.buffer, self.zbuffer, player_x, player_y, player_z, player_angle, 
                      _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index)
+        
+        self.invert_pixel(HALF_RES_X, HALF_RES_Y)
+
+        dX = -math.sin(player_angle) 
+        dY = math.cos(player_angle) 
+        if dX == 0:
+            dX = 0.001
+        if dY == 0:
+            dY = 0.001
+        wall_dist, hit, map_x, map_y, last_offset, step_x, step_y = cast_ray(dX, dY, player_x, player_y, player_angle, _map._map, _map.size)
+        wall_dist += 0.01
+        pos_x, pos_y = wall_dist * dX + player_x, wall_dist * dY + player_y
+        if hit and _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]] != ' ' and wall_dist < MAX_PLAYER_INTERACTION_RANGE:
+            for i in range(5):
+                for j in range(5):
+                    if  i == 0 or i == 4 or j == 0 or j == 4:
+                        self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)

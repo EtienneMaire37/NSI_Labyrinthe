@@ -70,6 +70,7 @@ def maze_to_map(sz_x: int, sz_y: int):
     maze = Labyrinthe(mz_sz_x + 1, mz_sz_y + 1)
     maze.generer()
     map_grid = [' '] * (sz_x * sz_y)
+    interaction = [' '] * (sz_x * sz_y)
 
     for i in range(mz_sz_y - 1):
         for j in range(mz_sz_x - 1):
@@ -104,7 +105,9 @@ def maze_to_map(sz_x: int, sz_y: int):
     map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = '6'
     map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + 1] = '8'
 
+    interaction[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = '1'
+
     # for i in range(sz_y):
     #     print(map_grid[i * sz_x:i * sz_x + sz_x])
 
-    return map_grid
+    return (map_grid, interaction)
