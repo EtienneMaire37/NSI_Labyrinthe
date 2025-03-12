@@ -17,6 +17,7 @@ class Game:
         SCREEN_HEIGHT = infoObject.current_h
         self.win = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         flags = pygame.FULLSCREEN | pygame.DOUBLEBUF
+        pygame.display.set_mode((0, 0), flags)
         pygame.display.set_caption("")
         self.clock = pygame.time.Clock()
 
