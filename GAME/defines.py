@@ -25,12 +25,14 @@ ROTATION_SPEED = 1.5          # Vitesse de rotation
 LOAD_TIME = 2               # Temps de chargement
 MAX_PLAYER_INTERACTION_RANGE = 2    # Distance maximum d'interaction
 
-RESOLUTION_X = 256          # Résolution de la fenêtre
-RESOLUTION_Y = int(RESOLUTION_X * SCREEN_HEIGHT / SCREEN_WIDTH)
+GAME_TITLE = "Jeu NSI"
 
 if FULL_RES:
     RESOLUTION_X = SCREEN_WIDTH
     RESOLUTION_Y = SCREEN_HEIGHT
+else:
+    RESOLUTION_X = 256          # Résolution de la fenêtre
+    RESOLUTION_Y = int(RESOLUTION_X * SCREEN_HEIGHT / SCREEN_WIDTH)
 
 HALF_RES_X = RESOLUTION_X // 2
 HALF_RES_Y = RESOLUTION_Y // 2

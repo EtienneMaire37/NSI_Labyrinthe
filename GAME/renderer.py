@@ -2,7 +2,7 @@ import sys
 import math
 import numpy
 from numba import njit, prange
-from GAME.defines import *
+from GAME.defines import WALL_LOW, WALL_HIGH, LIGHT_INTENSITY, LIGHT_OFFSET, MAX_PLAYER_INTERACTION_RANGE, FOV
 import GAME.map as mp
 from GAME.math import normalize_vector2d, dot_2d, dot_3d, lerp
 from GAME.rays import cast_ray
@@ -32,7 +32,10 @@ def gamma_correct(c: tuple):
 @njit(parallel = True, fastmath = True)
 def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, player_z: float, player_angle: float, 
                  _map_data: list, _map_size: tuple, _map_textures: list, 
-                 _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int):
+                 _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int, RESOLUTION_X: int, RESOLUTION_Y: int):
+    HALF_FOV = FOV / 2
+    # HALF_RES_X = RESOLUTION_X // 2
+    HALF_RES_Y = RESOLUTION_Y // 2
     for ray in prange(RESOLUTION_X):
         ray_angle = player_angle + (ray / RESOLUTION_X) * FOV
         project_dist = math.cos(ray / RESOLUTION_X * FOV - HALF_FOV)
@@ -132,7 +135,9 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
 
 # Gère tout les calculs visuels
 class Renderer:
-    def __init__(self):
+    def __init__(self, RESOLUTION_X: int, RESOLUTION_Y: int):
+        self.res_x = RESOLUTION_X
+        self.res_y = RESOLUTION_Y
         self.buffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 3))
         self.zbuffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 1))
 
@@ -141,7 +146,10 @@ class Renderer:
 
     def update(self, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         render_frame(self.buffer, self.zbuffer, player_x, player_y, player_z, player_angle, 
-                     _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index)
+                     _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.res_x, self.res_y)
+        
+        HALF_RES_X = self.res_x // 2
+        HALF_RES_Y = self.res_y // 2
         
         self.invert_pixel(HALF_RES_X, HALF_RES_Y)
 
