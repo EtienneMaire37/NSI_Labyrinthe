@@ -32,7 +32,7 @@ def gamma_correct(c: tuple):
 @njit(parallel = True, fastmath = True)
 def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, player_z: float, player_angle: float, 
                  _map_data: list, _map_size: tuple, _map_textures: list, 
-                 _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int, fill_color: tuple):
+                 _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int):
     for ray in prange(RESOLUTION_X):
         ray_angle = player_angle + (ray / RESOLUTION_X) * FOV
         project_dist = math.cos(ray / RESOLUTION_X * FOV - HALF_FOV)
@@ -136,7 +136,6 @@ class Renderer:
         self.buffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 3))
         self.zbuffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 1))
 
-    def update(self, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float, 
-               fill_color: tuple):
+    def update(self, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         render_frame(self.buffer, self.zbuffer, player_x, player_y, player_z, player_angle, 
-                     _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, fill_color)
+                     _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index)

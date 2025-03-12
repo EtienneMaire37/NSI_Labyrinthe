@@ -34,11 +34,6 @@ if FULL_RES:
 HALF_RES_X = RESOLUTION_X // 2
 HALF_RES_Y = RESOLUTION_Y // 2
 
-LIGHT_INTENSITY = 6         # Intensité de la lumière du soleil
-LIGHT_ANGLE = normalize_vector3d((-1, -0.5, -1))
-FILL_COLOR = (0.529, 0.808, 0.922)
-AMBIENT_LIGHT = (0.8, 0.9, 1)
-
 # Map de test
 MAP1_SIZE_X = 33 # 257
 MAP1_SIZE_Y = 33 # 257
