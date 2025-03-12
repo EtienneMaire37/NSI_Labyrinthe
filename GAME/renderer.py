@@ -129,6 +129,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     _map_textures[_map_floor_tex_idx][idx_x, idx_y, 2] / 255)
 
                     buffer[ray][i] = gamma_correct(tonemap_color((float(shade * tex[0]), float(shade * tex[1]), float(shade * tex[2]))))
+    buffer[HALF_RES_X][HALF_RES_Y] = (1 - buffer[HALF_RES_X][HALF_RES_Y][0], 1 - buffer[HALF_RES_X][HALF_RES_Y][1], 1 - buffer[HALF_RES_X][HALF_RES_Y][2])
 
 # Gère tout les calculs visuels
 class Renderer:
