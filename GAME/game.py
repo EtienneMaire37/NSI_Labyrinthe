@@ -4,6 +4,7 @@ import sys
 # from GAME.defines import * # Ne fonctionne pas car ca duplique les variables
 import GAME.defines
 from GAME.renderer import normalize_vector2d
+from GAME.rays import cast_ray
 import GAME.map as mp
 
 class Game:
@@ -36,10 +37,12 @@ class Game:
         self.total_move_time = 0
 
         self.loading = True
-        self.loadingTimer = 0
 
         self.mouse_mov = (0, 0)
         self.last_mouse_reset = False
+
+        self.in_menu = 0
+        self.action_pressed = 0
 
     # Gère tous les évènement de la fenêtre chaque frame et arrête le programme si elle est fermée
     def handleEvents(self):
@@ -62,6 +65,14 @@ class Game:
     # Gère les inputs liés au mouvement du personnage
     def handleMovement(self, delta_time: float, keys: list, _map: mp.Map):
         if self.loading:
+            return 
+
+        if keys[pygame.K_e]:
+            self.action_pressed += 1
+        else:
+            self.action_pressed = 0
+
+        if self.in_menu != 0 and self.action_pressed != 1:
             return
 
         if self.mouse_moved:
@@ -96,6 +107,22 @@ class Game:
             if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y += math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
 
+        if self.action_pressed == 1:
+            if self.in_menu == 0:
+                dX = -math.sin(self.player_angle) 
+                dY = math.cos(self.player_angle) 
+                if dX == 0:
+                    dX = 0.001
+                if dY == 0:
+                    dY = 0.001
+                wall_dist, hit, map_x, map_y, last_offset, step_x, step_y = cast_ray(dX, dY, self.player_x, self.player_y, self.player_angle, _map._map, _map.size)
+                wall_dist += 0.01
+                pos_x, pos_y = wall_dist * dX + self.player_x, wall_dist * dY + self.player_y
+                menu = _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]]
+                if hit and menu != 0 and wall_dist < GAME.defines.MAX_PLAYER_INTERACTION_RANGE:
+                    self.in_menu = menu
+            else:
+                self.in_menu = 0
 
     def _applyMovement(self, a, _a, _map):
         self.player_x += _a[0]
@@ -112,7 +139,6 @@ class Game:
 
         if not self.loading:
             self.total_time += deltaTime
-            self.loadingTimer += deltaTime
 
             keys = pygame.key.get_pressed()
             self.handleMovement(deltaTime, keys, _map)

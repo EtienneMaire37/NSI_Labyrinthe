@@ -144,26 +144,32 @@ class Renderer:
     def invert_pixel(self, x: int, y: int):
         self.buffer[x][y] = (1 - self.buffer[x][y][0], 1 - self.buffer[x][y][1], 1 - self.buffer[x][y][2])
 
-    def update(self, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
+    def update(self, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         render_frame(self.buffer, self.zbuffer, player_x, player_y, player_z, player_angle, 
                      _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.res_x, self.res_y)
         
-        HALF_RES_X = self.res_x // 2
-        HALF_RES_Y = self.res_y // 2
-        
-        self.invert_pixel(HALF_RES_X, HALF_RES_Y)
+        if in_menu == 0:
+            HALF_RES_X = self.res_x // 2
+            HALF_RES_Y = self.res_y // 2
+            
+            self.invert_pixel(HALF_RES_X, HALF_RES_Y)
 
-        dX = -math.sin(player_angle) 
-        dY = math.cos(player_angle) 
-        if dX == 0:
-            dX = 0.001
-        if dY == 0:
-            dY = 0.001
-        wall_dist, hit, map_x, map_y, last_offset, step_x, step_y = cast_ray(dX, dY, player_x, player_y, player_angle, _map._map, _map.size)
-        wall_dist += 0.01
-        pos_x, pos_y = wall_dist * dX + player_x, wall_dist * dY + player_y
-        if hit and _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]] != 0 and wall_dist < MAX_PLAYER_INTERACTION_RANGE:
-            for i in range(5):
-                for j in range(5):
-                    if  i == 0 or i == 4 or j == 0 or j == 4:
-                        self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
+            dX = -math.sin(player_angle) 
+            dY = math.cos(player_angle) 
+            if dX == 0:
+                dX = 0.001
+            if dY == 0:
+                dY = 0.001
+            wall_dist, hit, map_x, map_y, last_offset, step_x, step_y = cast_ray(dX, dY, player_x, player_y, player_angle, _map._map, _map.size)
+            wall_dist += 0.01
+            pos_x, pos_y = wall_dist * dX + player_x, wall_dist * dY + player_y
+            if hit and _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]] != 0 and wall_dist < MAX_PLAYER_INTERACTION_RANGE:
+                for i in range(5):
+                    for j in range(5):
+                        if  i == 0 or i == 4 or j == 0 or j == 4:
+                            self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
+        else:
+            for i in range(self.res_y):
+                for j in range(self.res_x):
+                    for k in range(3):
+                        self.buffer[j][i][k] *= .7

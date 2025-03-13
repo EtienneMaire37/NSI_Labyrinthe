@@ -79,12 +79,28 @@ def maze_to_map(sz_x: int, sz_y: int):
             if maze.laby[y_cell][x_cell].wallW:
                 pos = (x_cell + y_cell * sz_x) * 2 - 1 - sz_x
                 map_grid[pos] = 3
+                
             if maze.laby[y_cell][x_cell].wallS:
                 pos = (x_cell + y_cell * sz_x) * 2
                 map_grid[pos] = 3
-            if maze.laby[y_cell][x_cell].wallW and maze.laby[y_cell][x_cell].wallS:
-                pos = (x_cell + y_cell * sz_x) * 2 + sz_x - 1 - sz_x
+
+            if x_cell < mz_sz_x and maze.laby[y_cell][x_cell+1].wallW:
+                pos = (x_cell + y_cell * sz_x) * 2 + 1 - sz_x
                 map_grid[pos] = 3
+
+            if y_cell > 0 and maze.laby[y_cell-1][x_cell].wallS:
+                pos = (x_cell + (y_cell-1) * sz_x) * 2 + sz_x
+                map_grid[pos] = 3
+
+            if (maze.laby[y_cell][x_cell].wallW or 
+                maze.laby[y_cell][x_cell].wallS or
+                (x_cell < mz_sz_x and maze.laby[y_cell][x_cell+1].wallW) or
+                (y_cell > 0 and maze.laby[y_cell-1][x_cell].wallS)):
+                pos = (x_cell + y_cell * sz_x) * 2 - 1
+                map_grid[pos] = 3
+
+    for i in range(int(.6 * sz_x * sz_y)):
+        map_grid[randint(0, sz_x * sz_y - 1)] = 0
 
     for y in range(sz_y):
         for x in range(sz_x):
