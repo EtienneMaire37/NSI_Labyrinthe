@@ -69,41 +69,41 @@ class Game:
 
         if keys[pygame.K_z]:
             self.player_x += -1 * math.sin(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_x -= -1 * math.sin(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
             self.player_y += math.cos(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y -= math.cos(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
         if keys[pygame.K_s]:
             self.player_x -= -1 * math.sin(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_x += -1 * math.sin(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
             self.player_y -= math.cos(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y += math.cos(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
         if keys[pygame.K_d]:
             self.player_x += -1 * math.sin(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_x -= -1 * math.sin(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
             self.player_y += math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y -= math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
         if keys[pygame.K_q]:
             self.player_x -= -1 * math.sin(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_x += -1 * math.sin(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
             self.player_y -= math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
-            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != ' ':
+            if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y += math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
 
 
     def _applyMovement(self, a, _a, _map):
         self.player_x += _a[0]
-        if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] == ' ':
+        if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] == 0:
             a[0] += _a[0]
         self.player_x -= _a[0]
         self.player_y += _a[1]
-        if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] == ' ':
+        if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] == 0:
             a[1] += _a[1]
         self.player_y -= _a[1]
 

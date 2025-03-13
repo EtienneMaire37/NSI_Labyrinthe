@@ -28,7 +28,8 @@ def cast_ray(dX: float, dY: float, player_x: float, player_y: float, ray_angle: 
     depth = 1
     last_offset = 0
     hit = False
-    while depth < MAX_DEPTH:    
+    # while depth < MAX_DEPTH:   
+    while True: 
         if rlength_x < rlength_y:
             target_x += step_x
             depth = rlength_x
@@ -41,7 +42,7 @@ def cast_ray(dX: float, dY: float, player_x: float, player_y: float, ray_angle: 
             last_offset = 2
         if target_x >= _map_size[0] or target_y >= _map_size[1] or target_x < 0 or target_y < 0:
             break              
-        if _map_data[target_y * _map_size[0] + target_x] != ' ':
+        if _map_data[target_y * _map_size[0] + target_x] != 0:
             hit = True
             break
     if hit:

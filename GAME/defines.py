@@ -8,7 +8,7 @@ SCREEN_HEIGHT = 768
 MAX_FRAME_RATE = 5000
 FOV = 80 * math.pi / 180    # Champ de vision (fov) en radians du joueur
 HALF_FOV = FOV / 2          # Moitié du fov
-MAX_DEPTH = 500
+# MAX_DEPTH = 100
 
 LIGHT_INTENSITY = 1         # Intensité de la lumière du joueur
 LIGHT_OFFSET = 0.05         # Décalage entre le joueur et sa lumière
@@ -38,7 +38,7 @@ HALF_RES_X = RESOLUTION_X // 2
 HALF_RES_Y = RESOLUTION_Y // 2
 
 # Map de test
-MAP1_SIZE_X = 33 # 257
-MAP1_SIZE_Y = 33 # 257
+MAP1_SIZE_X = 2047 # 33 # 257
+MAP1_SIZE_Y = 2047 # 33 # 257
 
 MAP1, MAP1_INTERACT = maze_to_map(MAP1_SIZE_X, MAP1_SIZE_Y)

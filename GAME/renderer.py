@@ -69,7 +69,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
             for y in prange(wall_high_y, wall_low_y + 1):
                 v = (y - wall_high_y) / (wall_low_y - wall_high_y + 1)
                 if 0 <= y < RESOLUTION_Y: 
-                    tex_idx = int(ord(wall_type) - ord('1')) 
+                    tex_idx = wall_type - 1 # int(ord(wall_type) - ord('1')) 
                     uv = ((off_x + off_y) % 1, v)
 
                     color = (1, 0, 0)
@@ -162,7 +162,7 @@ class Renderer:
         wall_dist, hit, map_x, map_y, last_offset, step_x, step_y = cast_ray(dX, dY, player_x, player_y, player_angle, _map._map, _map.size)
         wall_dist += 0.01
         pos_x, pos_y = wall_dist * dX + player_x, wall_dist * dY + player_y
-        if hit and _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]] != ' ' and wall_dist < MAX_PLAYER_INTERACTION_RANGE:
+        if hit and _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]] != 0 and wall_dist < MAX_PLAYER_INTERACTION_RANGE:
             for i in range(5):
                 for j in range(5):
                     if  i == 0 or i == 4 or j == 0 or j == 4:

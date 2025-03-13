@@ -69,8 +69,8 @@ def maze_to_map(sz_x: int, sz_y: int):
     mz_sz_y = sz_y // 2
     maze = Labyrinthe(mz_sz_x + 1, mz_sz_y + 1)
     maze.generer()
-    map_grid = [' '] * (sz_x * sz_y)
-    interaction = [' '] * (sz_x * sz_y)
+    map_grid = [0] * (sz_x * sz_y)
+    interaction = [0] * (sz_x * sz_y)
 
     for i in range(mz_sz_y - 1):
         for j in range(mz_sz_x - 1):
@@ -78,13 +78,13 @@ def maze_to_map(sz_x: int, sz_y: int):
             x_cell = j + 1
             if maze.laby[y_cell][x_cell].wallW:
                 pos = (x_cell + y_cell * sz_x) * 2 - 1 - sz_x
-                map_grid[pos] = '3'
+                map_grid[pos] = 3
             if maze.laby[y_cell][x_cell].wallS:
                 pos = (x_cell + y_cell * sz_x) * 2
-                map_grid[pos] = '3'
+                map_grid[pos] = 3
             if maze.laby[y_cell][x_cell].wallW and maze.laby[y_cell][x_cell].wallS:
                 pos = (x_cell + y_cell * sz_x) * 2 + sz_x - 1 - sz_x
-                map_grid[pos] = '3'
+                map_grid[pos] = 3
 
     for y in range(sz_y):
         for x in range(sz_x):
@@ -98,14 +98,14 @@ def maze_to_map(sz_x: int, sz_y: int):
             if j == -rad or j == rad or  i == -rad or i == rad:
                 map_grid[pos] = str(4 + 3 * (1 - (pos % 2)))
             else:
-                map_grid[pos] = ' '
+                map_grid[pos] = 0
 
-    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + rad + 1] = ' '
-    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + rad + 2] = ' '
-    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = '6'
-    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + 1] = '8'
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + rad + 1] = 0
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + rad + 2] = 0
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = 6
+    map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + 1] = 8
 
-    interaction[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = '1'
+    interaction[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = 1
 
     # for i in range(sz_y):
     #     print(map_grid[i * sz_x:i * sz_x + sz_x])
