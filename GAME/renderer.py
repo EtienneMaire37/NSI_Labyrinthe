@@ -8,11 +8,11 @@ from GAME.math import normalize_vector2d, dot_2d, dot_3d, lerp
 from GAME.rays import cast_ray
 
 # Implémente la formule de tonemapping de Reinhard 
-@njit(fastmath = True)
+@njit(fastmath = True, cache = True)
 def tonemap_channel(c: float):
     return c / (c + 1)
 
-@njit(fastmath = True)
+@njit(fastmath = True, cache = True)
 def tonemap_color(c: tuple):
     return (tonemap_channel(c[0]), tonemap_channel(c[1]), tonemap_channel(c[2]))
 
@@ -24,12 +24,12 @@ def tonemap_color(c: tuple):
 #     V = (c[0] / (1 + l), c[1] / (1 + l), c[2] / (1 + l))
 #     return (lerp(V[0], tv[0], tv[0]), lerp(V[1], tv[1], tv[1]), lerp(V[2], tv[2], tv[2]))
 
-@njit(fastmath = True)
+@njit(fastmath = True, cache = True)
 def gamma_correct(c: tuple):
     return (math.sqrt(c[0]), math.sqrt(c[1]), math.sqrt(c[2])) # (c[0]**(1 / 2.2), c[1]**(1 / 2.2), c[2]**(1 / 2.2))
 
 # Calcule une image et la retourne dans la liste 'buffer'
-@njit(parallel = True, fastmath = True)
+@njit(parallel = True, fastmath = True, cache = True)
 def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, player_z: float, player_angle: float, 
                  _map_data: list, _map_size: tuple, _map_textures: list, 
                  _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int, RESOLUTION_X: int, RESOLUTION_Y: int):

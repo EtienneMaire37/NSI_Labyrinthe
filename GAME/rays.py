@@ -3,7 +3,7 @@ from GAME.defines import *
 from GAME.math import *
 
 # Trace un rayon à travers la scène en utilisant l'algorithme de raycasting DDA
-@njit(fastmath = True)
+@njit(fastmath = True, cache = True)
 def cast_ray(dX: float, dY: float, player_x: float, player_y: float, ray_angle: float, _map_data: list, _map_size: tuple):
     step_size_x = math.sqrt((dY / dX)**2 + 1) 
     step_size_y = math.sqrt((dX / dY)**2 + 1) 
