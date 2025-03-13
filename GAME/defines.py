@@ -26,6 +26,8 @@ LOAD_TIME = 2               # Temps de chargement
 MAX_PLAYER_INTERACTION_RANGE = 2    # Distance maximum d'interaction
 
 GAME_TITLE = "Jeu NSI"
+MENU_OUTLINE = 10
+MENU_OUTLINE2 = 5
 
 if FULL_RES:
     RESOLUTION_X = SCREEN_WIDTH

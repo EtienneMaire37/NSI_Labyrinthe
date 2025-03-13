@@ -2,7 +2,7 @@ import sys
 import math
 import numpy
 from numba import njit, prange
-from GAME.defines import WALL_LOW, WALL_HIGH, LIGHT_INTENSITY, LIGHT_OFFSET, MAX_PLAYER_INTERACTION_RANGE, FOV
+from GAME.defines import WALL_LOW, WALL_HIGH, LIGHT_INTENSITY, LIGHT_OFFSET, MAX_PLAYER_INTERACTION_RANGE, FOV, MENU_OUTLINE, MENU_OUTLINE2
 import GAME.map as mp
 from GAME.math import normalize_vector2d, dot_2d, dot_3d, lerp
 from GAME.rays import cast_ray
@@ -166,10 +166,15 @@ class Renderer:
             if hit and _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]] != 0 and wall_dist < MAX_PLAYER_INTERACTION_RANGE:
                 for i in range(5):
                     for j in range(5):
-                        if  i == 0 or i == 4 or j == 0 or j == 4:
+                        if i == 0 or i == 4 or j == 0 or j == 4:
                             self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
         else:
             for i in range(self.res_y):
                 for j in range(self.res_x):
                     for k in range(3):
-                        self.buffer[j][i][k] *= .7
+                        self.buffer[j][i][k] *= .5
+            for i in range(MENU_OUTLINE, self.res_y - MENU_OUTLINE):
+                for j in range(MENU_OUTLINE, self.res_x - MENU_OUTLINE):
+                    # self.invert_pixel(j, i)
+                    if i == MENU_OUTLINE or i == self.res_y - MENU_OUTLINE - 1 or j == MENU_OUTLINE or j == self.res_x - MENU_OUTLINE - 1 or (MENU_OUTLINE + MENU_OUTLINE2 <= i <= self.res_y - MENU_OUTLINE - MENU_OUTLINE2 - 1 and MENU_OUTLINE + MENU_OUTLINE2 <= j <= self.res_x - MENU_OUTLINE - MENU_OUTLINE2 - 1):
+                        self.buffer[j][i] = (1, 1, 1)

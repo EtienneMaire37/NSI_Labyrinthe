@@ -150,7 +150,7 @@ class Game:
 
             keys = pygame.key.get_pressed()
             self.handleMovement(deltaTime, keys, _map)
-        pygame.display.set_caption(GAME.defines.GAME_TITLE + f"FPS: {int(1 / deltaTime)}")
+        pygame.display.set_caption(GAME.defines.GAME_TITLE + f" | FPS: {int(1 / deltaTime)}")
 
     def display(self, buffer: list):
         surf = pygame.surfarray.make_surface(buffer * 255).convert()
