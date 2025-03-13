@@ -39,7 +39,7 @@ class Game:
         self.loadingTimer = 0
 
         self.mouse_mov = (0, 0)
-        self.mouse_moved = False
+        self.last_mouse_reset = False
 
     # Gère tous les évènement de la fenêtre chaque frame et arrête le programme si elle est fermée
     def handleEvents(self):
@@ -50,10 +50,14 @@ class Game:
                 sys.exit(0)
             if event.type == pygame.MOUSEMOTION:
                 self.mouse_mov = event.rel
-                self.mouse_moved = True
+                if not self.last_mouse_reset:
+                    self.mouse_moved = True
                 if math.sqrt((event.pos[0] - GAME.defines.SCREEN_WIDTH / 2)**2 + (event.pos[1] - GAME.defines.SCREEN_HEIGHT / 2)**2) > min(GAME.defines.SCREEN_WIDTH, GAME.defines.SCREEN_HEIGHT) / 2:
                     pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
-
+                    self.mouse_moved = True
+                    self.last_mouse_reset = True
+                else:
+                    self.last_mouse_reset = False
 
     # Gère les inputs liés au mouvement du personnage
     def handleMovement(self, delta_time: float, keys: list, _map: mp.Map):
