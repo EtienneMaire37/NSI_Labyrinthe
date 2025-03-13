@@ -28,7 +28,7 @@ def main():
     while True:
         game.handleEvents()
         game.update(map1)
-        renderer.update(map1, game.player_x, game.player_y, game.player_z, game.player_angle)
+        renderer.update(game.in_menu, map1, game.player_x, game.player_y, game.player_z, game.player_angle)
         game.display(renderer.buffer)
 
 if __name__ == "__main__": # Pour profiler : python3 -m cProfile -s tottime main.py | head -n 35
