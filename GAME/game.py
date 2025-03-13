@@ -52,15 +52,16 @@ class Game:
                 pygame.quit()
                 sys.exit(0)
             if event.type == pygame.MOUSEMOTION:
-                self.mouse_mov = event.rel
-                if not self.last_mouse_reset:
-                    self.mouse_moved = True
-                if math.sqrt((event.pos[0] - GAME.defines.SCREEN_WIDTH / 2)**2 + (event.pos[1] - GAME.defines.SCREEN_HEIGHT / 2)**2) > min(GAME.defines.SCREEN_WIDTH, GAME.defines.SCREEN_HEIGHT) / 2:
-                    pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
-                    self.mouse_moved = True
-                    self.last_mouse_reset = True
-                else:
-                    self.last_mouse_reset = False
+                if self.in_menu == 0:
+                    self.mouse_mov = event.rel
+                    if not self.last_mouse_reset:
+                        self.mouse_moved = True
+                    if math.sqrt((event.pos[0] - GAME.defines.SCREEN_WIDTH / 2)**2 + (event.pos[1] - GAME.defines.SCREEN_HEIGHT / 2)**2) > min(GAME.defines.SCREEN_WIDTH, GAME.defines.SCREEN_HEIGHT) / 2:
+                        pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
+                        self.mouse_moved = True
+                        self.last_mouse_reset = True
+                    else:
+                        self.last_mouse_reset = False
 
     # Gère les inputs liés au mouvement du personnage
     def handleMovement(self, delta_time: float, keys: list, _map: mp.Map):
@@ -121,8 +122,15 @@ class Game:
                 menu = _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]]
                 if hit and menu != 0 and wall_dist < GAME.defines.MAX_PLAYER_INTERACTION_RANGE:
                     self.in_menu = menu
+                    pygame.mouse.set_visible(True)
+                    pygame.event.set_grab(False)
+
+                    pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
+                    self.last_mouse_reset = True
             else:
                 self.in_menu = 0
+                pygame.mouse.set_visible(False)
+                pygame.event.set_grab(True)
 
     def _applyMovement(self, a, _a, _map):
         self.player_x += _a[0]
