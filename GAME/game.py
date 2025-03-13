@@ -132,20 +132,11 @@ class Game:
                 pygame.mouse.set_visible(False)
                 pygame.event.set_grab(True)
 
-    def _applyMovement(self, a, _a, _map):
-        self.player_x += _a[0]
-        if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] == 0:
-            a[0] += _a[0]
-        self.player_x -= _a[0]
-        self.player_y += _a[1]
-        if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] == 0:
-            a[1] += _a[1]
-        self.player_y -= _a[1]
-
     def update(self, _map: mp.Map):
         deltaTime = self.clock.tick(GAME.defines.MAX_FRAME_RATE) / 1000
+        # print(deltaTime)
 
-        if not self.loading:
+        if (not self.loading) and deltaTime < .1:
             self.total_time += deltaTime
 
             keys = pygame.key.get_pressed()
