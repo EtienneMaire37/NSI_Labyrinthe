@@ -193,7 +193,7 @@ class Game:
             self.handleEvents()
             self.update(map1)
             m_x, m_y =  pygame.mouse.get_pos()
-            menu = renderer.update(int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
+            menu = renderer.update(self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)
 
             if self.mouse_clicked:

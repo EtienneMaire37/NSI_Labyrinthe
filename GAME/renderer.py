@@ -374,7 +374,7 @@ class Renderer:
         self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
         return x, y, max_x + 2, max_y + 2
                 
-    def update(self, mouse_x: int, mouse_y: int, global_time: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
+    def update(self, click_btn: int, mouse_x: int, mouse_y: int, global_time: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         anim = idle_animation(global_time, .03)
 
         render_frame(self.buffer, self.zbuffer, player_x + anim[0], player_y + anim[1], player_z + anim[2], player_angle + anim[3], 
@@ -409,7 +409,10 @@ class Renderer:
             match in_menu:
                 case 1:
                     self.print_str(18, 18, "Menu principal", (1, 1, 1))
-                    x, y, max_x, max_y = self.draw_button(18, 36, "Jouer", (1, 1, 1))
+                    c = 1
+                    if click_btn == 1:
+                        c = .7
+                    x, y, max_x, max_y = self.draw_button(18, 36, "Jouer", (c, c, c))
                     # print(x, y, max_x, max_y)
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 1
