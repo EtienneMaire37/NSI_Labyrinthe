@@ -44,7 +44,10 @@ class Game:
         self.last_mouse_reset = False
 
         self.in_menu = 1
-        self.action_pressed = 0
+        self.action_counter = 0
+        self.click_button = 0
+        self.mouse_clicked = False
+        self.mouse_released = False
 
         if self.in_menu == 0:
             pygame.mouse.set_visible(False)
@@ -55,7 +58,7 @@ class Game:
 
     # Gère tous les évènement de la fenêtre chaque frame et arrête le programme si elle est fermée
     def handleEvents(self):
-        self.mouse_moved = False
+        self.mouse_moved = self.mouse_clicked = self.mouse_released = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -71,6 +74,10 @@ class Game:
                         self.last_mouse_reset = True
                     else:
                         self.last_mouse_reset = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.mouse_clicked = True
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.mouse_released = True
 
     # Gère les inputs liés au mouvement du personnage
     def handleMovement(self, delta_time: float, keys: list, _map: mp.Map):
@@ -78,11 +85,11 @@ class Game:
             return 
 
         if keys[pygame.K_e]:
-            self.action_pressed += 1
+            self.action_counter += 1
         else:
-            self.action_pressed = 0
+            self.action_counter = 0
 
-        if self.in_menu != 0 and self.action_pressed != 1:
+        if self.in_menu != 0 and self.action_counter != 1:
             return
 
         if self.mouse_moved:
@@ -117,7 +124,7 @@ class Game:
             if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y += math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
 
-        if self.action_pressed == 1:
+        if self.action_counter == 1:
             if self.in_menu == 0:
                 dX = -math.sin(self.player_angle) 
                 dY = math.cos(self.player_angle) 
@@ -186,5 +193,19 @@ class Game:
             self.handleEvents()
             self.update(map1)
             m_x, m_y =  pygame.mouse.get_pos()
-            renderer.update(m_x * RESOLUTION_X / SCREEN_WIDTH, m_y * RESOLUTION_Y / SCREEN_HEIGHT, self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
+            menu = renderer.update(int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)
+
+            if self.mouse_clicked:
+                self.click_button = menu
+                # print(self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT))
+            if self.mouse_released:
+                if self.click_button == menu:
+                    match self.click_button:
+                        case 1:
+                            self.in_menu = 0 # Play button
+                            pygame.mouse.set_visible(False)
+                            pygame.event.set_grab(True)
+                        case _:
+                            pass
+                self.click_button = 0

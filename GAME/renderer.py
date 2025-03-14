@@ -376,7 +376,7 @@ class Renderer:
     def draw_button(self, x, y, text, color):
         _x, _y, max_x, max_y = self.print_str(x + 2, y + 2, text, color)
         self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
-        return _x, _y, max_x + 2, max_y + 2
+        return x, y, max_x + 2, max_y + 2
                 
     def update(self, mouse_x: int, mouse_y: int, global_time: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         anim = idle_animation(global_time, .03)
@@ -410,6 +410,7 @@ class Renderer:
                 case 1:
                     self.print_str(18, 18, "Menu principal", (1, 1, 1))
                     x, y, max_x, max_y = self.draw_button(18, 36, "Jouer", (1, 1, 1))
+                    # print(x, y, max_x, max_y)
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 1
                 case 2:
