@@ -6,6 +6,7 @@ import GAME.defines
 from GAME.renderer import normalize_vector2d, Renderer
 from GAME.rays import cast_ray
 import GAME.map as mp
+from GAME.entity import Entity
 
 class Game:
     def __init__(self, _player_x: float, _player_y: float):
@@ -182,6 +183,7 @@ class Game:
             RESOLUTION_X = SCREEN_WIDTH
             RESOLUTION_Y = SCREEN_HEIGHT
         renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
+        renderer.add_entity(Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/pixel-0077-668142567.png", (1, 1, 1)))
 
         # print(maze_to_map(32, 32))
 

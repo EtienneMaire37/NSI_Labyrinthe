@@ -12,4 +12,3 @@ class Entity:
         self.texture = pygame.surfarray.array3d(tex).astype(numpy.uint8)
         self.texture_size = tex.get_size()
         self.alpha_color = alpha
-        self.attack_timer = 1

@@ -6,6 +6,7 @@ from GAME.defines import WALL_LOW, WALL_HIGH, LIGHT_INTENSITY, LIGHT_OFFSET, MAX
 import GAME.map as mp
 from GAME.math import normalize_vector2d, dot_2d, dot_3d, lerp
 from GAME.rays import cast_ray
+from GAME.entity import Entity
 
 # Implémente la formule de tonemapping de Reinhard 
 @njit(fastmath = True, cache = True)
@@ -30,9 +31,11 @@ def gamma_correct(c: tuple):
 
 # Calcule une image et la retourne dans la liste 'buffer'
 @njit(parallel = True, fastmath = True, cache = True)
-def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, player_z: float, player_angle: float, 
-                 _map_data: list, _map_size: tuple, _map_textures: list, 
-                 _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int, RESOLUTION_X: int, RESOLUTION_Y: int):
+def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, player_z: float, 
+                 player_angle: float, _map_data: list, _map_size: tuple, _map_textures: list,
+                 _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int,
+                 entities: numpy.ndarray, RESOLUTION_X: int, RESOLUTION_Y: int):
+
     HALF_FOV = FOV / 2
     # HALF_RES_X = RESOLUTION_X // 2
     HALF_RES_Y = RESOLUTION_Y // 2
@@ -85,6 +88,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                         color = gamma_correct(tonemap_color((float(shade * tex[0]), float(shade * tex[1]), float(shade * tex[2]))))
                         
                     buffer[ray][y] = color
+                    zbuffer[ray][y] = wall_dist
                     
             for i in prange(wall_high_y + 1):
                 if _map_ceil_tex_idx < len(_map_textures):
@@ -108,8 +112,10 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     _map_textures[_map_ceil_tex_idx][idx_x, idx_y, 2] / 255)
 
                     buffer[ray][i] = gamma_correct(tonemap_color((float(shade * tex[0]), float(shade * tex[1]), float(shade * tex[2]))))
+                    zbuffer[ray][i] = math.sqrt((WALL_HIGH - player_z)**2 + z**2)
                 else:
                     buffer[ray][i] = (0, 0, 0)
+                    zbuffer[ray][i] = 100
             for i in prange(wall_low_y + 1, RESOLUTION_Y):
                 if _map_floor_tex_idx < len(_map_textures):
                     z = - (HALF_RES_Y / (i - HALF_RES_Y) / project_dist) * (WALL_LOW - player_z)
@@ -132,6 +138,60 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     _map_textures[_map_floor_tex_idx][idx_x, idx_y, 2] / 255)
 
                     buffer[ray][i] = gamma_correct(tonemap_color((float(shade * tex[0]), float(shade * tex[1]), float(shade * tex[2]))))
+                    zbuffer[ray][i] = math.sqrt((WALL_LOW - player_z)**2 + z**2)
+        
+        # Affiche les entités
+        for entity in entities:
+            pos_x, pos_y, pos_z = entity['position']
+            size_x, size_y = entity['size']
+            tex = entity['texture']
+            alpha = entity['alpha']
+            tex_h, tex_w = tex.shape[1], tex.shape[0]
+
+            vector_to_entity = (float(pos_x - player_x), float(pos_y - player_y))
+            distance_to_entity = math.sqrt(vector_to_entity[0]**2 + vector_to_entity[1]**2)
+
+            vector_to_entity = (vector_to_entity[0] / float(distance_to_entity), vector_to_entity[1] / float(distance_to_entity))
+
+            # angle_to_entity = 0
+            # if vector_to_entity[1] != 0:
+            #     angle_to_entity = math.atan(vector_to_entity[0] / vector_to_entity[1])
+                
+            angle_to_entity = math.acos(dot_2d(vector_to_entity, (0, 1)))
+            if vector_to_entity[0] > 0:
+                angle_to_entity *= -1
+            angle_to_entity %= math.pi * 2
+
+            angle_to_intersection = math.acos(dot_2d((dX, dY), (0, 1)))
+            if dX > 0:
+                angle_to_intersection *= -1
+            angle_to_intersection %= math.pi * 2
+            
+            if distance_to_entity > 0.05:
+                if (size_x / (2 * distance_to_entity)) < math.pi:
+                    angle_diff_to_entity = math.acos(dot_2d(vector_to_entity, (dX, dY)))
+
+                    sprite_height = size_y / distance_to_entity * 3 * RESOLUTION_Y
+                    sprite_low = pos_z - size_y / 2
+                    sprite_high = pos_z + size_y / 2
+                    sprite_low_y = int(HALF_RES_Y - (sprite_height / 2 * (sprite_low - player_z / 4)))
+                    sprite_high_y = int(HALF_RES_Y - (sprite_height / 2 * (sprite_high - player_z / 4)))
+                    
+                    if angle_diff_to_entity < size_x / distance_to_entity / 2:
+                        for y in prange(max(min(sprite_high_y, RESOLUTION_Y), 0), max(min(sprite_low_y, RESOLUTION_Y), 0)):
+                            if distance_to_entity < zbuffer[ray][y][0]:
+                                v = (y - sprite_high_y) / (sprite_low_y - sprite_high_y)
+                                u = min(2, max(0, (2 - (((((float(angle_to_intersection - angle_to_entity) + math.pi) % (2 * math.pi)) - math.pi + (size_x / (2 * distance_to_entity))) % (2 * math.pi)) / (size_x / (2 * distance_to_entity)))))) / 2
+                                w = tex_w
+                                h = tex_h
+                                idx_x = int(u * w)
+                                idx_y = int(v * h)
+                                # if tex[idx_x, idx_y - 1, 3] != 0:
+                                if tex[idx_x, idx_y, 0] != alpha[0] or tex[idx_x, idx_y, 1] != alpha[1] or tex[idx_x, idx_y, 2] != alpha[2]:
+                                    zbuffer[ray][y][0] = distance_to_entity 
+                                    buffer[ray][y] = (tex[idx_x, idx_y, 0] / 255, 
+                                                    tex[idx_x, idx_y, 1] / 255, 
+                                                    tex[idx_x, idx_y, 2] / 255) 
 
 # Gestion de la police de caractères
 FONT_SIZE = 8
@@ -327,6 +387,23 @@ class Renderer:
         self.res_y = RESOLUTION_Y
         self.buffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 3))
         self.zbuffer = numpy.zeros((RESOLUTION_X, RESOLUTION_Y, 1))
+        entity_dtype = numpy.dtype([
+            ('position', numpy.float64, (3,)),
+            ('size', numpy.float64, (2,)),
+            ('texture', numpy.uint8, (64, 96, 3)),  # Assuming 64x64 textures
+            ('alpha', numpy.uint8, (3,))
+        ])
+        self.entities = numpy.empty(0, dtype=entity_dtype)
+
+    def add_entity(self, entity: Entity):
+        new_entity = numpy.array([(
+            entity.position,
+            entity.size,
+            entity.texture,
+            entity.alpha_color
+        )], dtype=self.entities.dtype)
+        self.entities = numpy.concatenate((self.entities, new_entity))
+
 
     def invert_pixel(self, x: int, y: int):
         self.buffer[x][y] = (1 - self.buffer[x][y][0], 1 - self.buffer[x][y][1], 1 - self.buffer[x][y][2])
@@ -378,7 +455,7 @@ class Renderer:
         anim = idle_animation(global_time, .03)
 
         render_frame(self.buffer, self.zbuffer, player_x + anim[0], player_y + anim[1], player_z + anim[2], player_angle + anim[3], 
-                     _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.res_x, self.res_y)
+                     _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.entities, self.res_x, self.res_y)
         
         if in_menu == 0:
             HALF_RES_X = self.res_x // 2
