@@ -121,7 +121,7 @@ def maze_to_map(sz_x: int, sz_y: int):
     map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = 6
     map_grid[sz_x // 2 + sz_x * (sz_y // 2 + 1) + 1] = 8
 
-    interaction[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = 1
+    interaction[sz_x // 2 + sz_x * (sz_y // 2 + 1) - rad + 1] = 2
 
     # for i in range(sz_y):
     #     print(map_grid[i * sz_x:i * sz_x + sz_x])

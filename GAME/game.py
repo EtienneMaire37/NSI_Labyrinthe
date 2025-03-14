@@ -41,7 +41,7 @@ class Game:
         self.mouse_mov = (0, 0)
         self.last_mouse_reset = False
 
-        self.in_menu = 0
+        self.in_menu = 1
         self.action_pressed = 0
 
     # Gère tous les évènement de la fenêtre chaque frame et arrête le programme si elle est fermée

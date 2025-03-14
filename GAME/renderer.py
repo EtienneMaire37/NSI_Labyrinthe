@@ -362,4 +362,10 @@ class Renderer:
                     if i == MENU_OUTLINE or i == self.res_y - MENU_OUTLINE - 1 or j == MENU_OUTLINE or j == self.res_x - MENU_OUTLINE - 1 or (MENU_OUTLINE + MENU_OUTLINE2 <= i <= self.res_y - MENU_OUTLINE - MENU_OUTLINE2 - 1 and MENU_OUTLINE + MENU_OUTLINE2 <= j <= self.res_x - MENU_OUTLINE - MENU_OUTLINE2 - 1):
                         self.buffer[j][i] = (1, 1, 1)
 
-            self.print_str(18, 18, "Hello, world!\nSecond line\nThird line.", (0, 0, 0))
+            match in_menu:
+                case 1:
+                    self.print_str(18, 18, "Main menu", (0, 0, 0))
+                case 2:
+                    self.print_str(18, 18, "Hello, world!\nSecond line\nThird line.", (0, 0, 0))
+                case _:
+                    self.print_str(18, 18, "Undefined menu", (0, 0, 0))
