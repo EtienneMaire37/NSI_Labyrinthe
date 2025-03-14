@@ -14,8 +14,8 @@ class Game:
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION])
         # pygame.mouse.set_visible(False)
         # pygame.event.set_grab(True)
-        pygame.mouse.set_visible(True)
-        pygame.event.set_grab(False)
+        # pygame.mouse.set_visible(True)
+        # pygame.event.set_grab(False)
         infoObject = pygame.display.Info()
         GAME.defines.SCREEN_WIDTH = infoObject.current_w
         GAME.defines.SCREEN_HEIGHT = infoObject.current_h
@@ -45,6 +45,13 @@ class Game:
 
         self.in_menu = 1
         self.action_pressed = 0
+
+        if self.in_menu == 0:
+            pygame.mouse.set_visible(False)
+            pygame.event.set_grab(True)
+        else:
+            pygame.mouse.set_visible(True)
+            pygame.event.set_grab(False)
 
     # Gère tous les évènement de la fenêtre chaque frame et arrête le programme si elle est fermée
     def handleEvents(self):
@@ -178,5 +185,5 @@ class Game:
         while True:
             self.handleEvents()
             self.update(map1)
-            renderer.update(self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
+            renderer.update(self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)

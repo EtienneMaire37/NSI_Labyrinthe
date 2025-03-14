@@ -294,6 +294,32 @@ def get_char_matrix(c):
     # return [[int(bit) for bit in format(row, '016b')] for row in matrix]
     return [[int(bit) for bit in format(row, '08b')] for row in matrix]
 
+def idle_animation(time, amplitude = 0.5, speed = 1, offset = 0):
+    """
+    Retourne un tuple (x_offset, y_offset, rotation_angle) pour faire une animation basique de la caméra
+    Paramètres:
+    - time: Temps actuel en secondes
+    - amplitude: Amplitude du mouvement
+    - speed: Vitesse de mouvement
+    - offset: Décalage
+    """
+    
+    x = math.sin(time * 0.7 * speed + offset) * amplitude * 0.8
+    
+    y = (math.cos(time * 1.2 * speed + offset * 2) * 
+        (amplitude * 0.6) * 
+        (0.5 + 0.5 * math.sin(time * 0.3 * speed)))
+    
+    z = (math.sin(time * 0.5 * speed + offset * 0.8) * 
+        amplitude * 0.4 * 
+        (0.7 + 0.3 * math.cos(time * 0.35 * speed)))
+    
+    rot = (math.sin(time * 0.5 * speed + offset * 3) * 
+          amplitude * 0.15 * 
+          (0.8 + 0.2 * math.cos(time * 0.9 * speed)))
+
+    return (x, y, z, rot)
+
 # Gère tout les calculs visuels
 class Renderer:
     def __init__(self, RESOLUTION_X: int, RESOLUTION_Y: int):
@@ -351,8 +377,10 @@ class Renderer:
         _x, _y, max_x, max_y = self.print_str(x + 2, y + 2, text, color)
         self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
                 
-    def update(self, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
-        render_frame(self.buffer, self.zbuffer, player_x, player_y, player_z, player_angle, 
+    def update(self, global_time: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
+        anim = idle_animation(global_time, .03)
+
+        render_frame(self.buffer, self.zbuffer, player_x + anim[0], player_y + anim[1], player_z + anim[2], player_angle + anim[3], 
                      _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.res_x, self.res_y)
         
         if in_menu == 0:
