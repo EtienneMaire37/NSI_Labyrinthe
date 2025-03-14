@@ -315,18 +315,42 @@ class Renderer:
 
     def print_str(self, x, y, str, color):
         x_offset = 0
+        max_x, max_y = x, y
         for i in range(len(str)):
             match str[i]:
                 case '\n':
                     y += FONT_SIZE
+                    max_y = max(max_y, y)
                     x -= x_offset
                     x_offset = 0
                 case _:
                     self.print_char(x, y, str[i], color)
                     x += FONT_SIZE
                     x_offset += FONT_SIZE
-                
+                    max_x = max(max_x, x)
+        return (x, y, max_x, max_y + FONT_SIZE)
 
+    def draw_menu_frame(self):
+        for i in range(self.res_y):
+                for j in range(self.res_x):
+                    for k in range(3):
+                        self.buffer[j][i][k] *= .5
+        for i in range(MENU_OUTLINE, self.res_y - MENU_OUTLINE):
+            for j in range(MENU_OUTLINE, self.res_x - MENU_OUTLINE):
+                # self.invert_pixel(j, i)
+                if i == MENU_OUTLINE or i == self.res_y - MENU_OUTLINE - 1 or j == MENU_OUTLINE or j == self.res_x - MENU_OUTLINE - 1 or (MENU_OUTLINE + MENU_OUTLINE2 <= i <= self.res_y - MENU_OUTLINE - MENU_OUTLINE2 - 1 and MENU_OUTLINE + MENU_OUTLINE2 <= j <= self.res_x - MENU_OUTLINE - MENU_OUTLINE2 - 1):
+                    self.buffer[j][i] = (1, 1, 1)
+
+    def draw_rectangle_outline(self, x_low, y_low, x_high, y_high, color):
+        for i in range(y_low, y_high):
+            for j in range(x_low, x_high):
+                if j == x_low or j == x_high - 1 or i == y_low or i == y_high - 1:
+                    self.buffer[j][i] = color
+
+    def draw_button(self, x, y, text, color):
+        _x, _y, max_x, max_y = self.print_str(x + 2, y + 2, text, color)
+        self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
+                
     def update(self, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         render_frame(self.buffer, self.zbuffer, player_x, player_y, player_z, player_angle, 
                      _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.res_x, self.res_y)
@@ -352,20 +376,12 @@ class Renderer:
                         if i == 0 or i == 4 or j == 0 or j == 4:
                             self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
         else:
-            for i in range(self.res_y):
-                for j in range(self.res_x):
-                    for k in range(3):
-                        self.buffer[j][i][k] *= .5
-            for i in range(MENU_OUTLINE, self.res_y - MENU_OUTLINE):
-                for j in range(MENU_OUTLINE, self.res_x - MENU_OUTLINE):
-                    # self.invert_pixel(j, i)
-                    if i == MENU_OUTLINE or i == self.res_y - MENU_OUTLINE - 1 or j == MENU_OUTLINE or j == self.res_x - MENU_OUTLINE - 1 or (MENU_OUTLINE + MENU_OUTLINE2 <= i <= self.res_y - MENU_OUTLINE - MENU_OUTLINE2 - 1 and MENU_OUTLINE + MENU_OUTLINE2 <= j <= self.res_x - MENU_OUTLINE - MENU_OUTLINE2 - 1):
-                        self.buffer[j][i] = (1, 1, 1)
-
             match in_menu:
                 case 1:
-                    self.print_str(18, 18, "Main menu", (0, 0, 0))
+                    self.print_str(18, 18, "Menu principal", (1, 1, 1))
+                    self.draw_button(18, 36, "Jouer", (1, 1, 1))
                 case 2:
+                    self.draw_menu_frame()
                     self.print_str(18, 18, "Hello, world!\nSecond line\nThird line.", (0, 0, 0))
                 case _:
-                    self.print_str(18, 18, "Undefined menu", (0, 0, 0))
+                    self.print_str(18, 18, "Menu non defini", (0, 0, 0))

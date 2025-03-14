@@ -12,8 +12,10 @@ class Game:
         pygame.init()
 
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION])
-        pygame.mouse.set_visible(False)
-        pygame.event.set_grab(True)
+        # pygame.mouse.set_visible(False)
+        # pygame.event.set_grab(True)
+        pygame.mouse.set_visible(True)
+        pygame.event.set_grab(False)
         infoObject = pygame.display.Info()
         GAME.defines.SCREEN_WIDTH = infoObject.current_w
         GAME.defines.SCREEN_HEIGHT = infoObject.current_h
@@ -127,7 +129,7 @@ class Game:
 
                     pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
                     self.last_mouse_reset = True
-            else:
+            elif self.in_menu != 1:
                 self.in_menu = 0
                 pygame.mouse.set_visible(False)
                 pygame.event.set_grab(True)
