@@ -357,10 +357,6 @@ class Renderer:
         return (x, y, max_x, max_y + FONT_SIZE)
 
     def draw_menu_frame(self):
-        for i in range(self.res_y):
-                for j in range(self.res_x):
-                    for k in range(3):
-                        self.buffer[j][i][k] *= .5
         for i in range(MENU_OUTLINE, self.res_y - MENU_OUTLINE):
             for j in range(MENU_OUTLINE, self.res_x - MENU_OUTLINE):
                 # self.invert_pixel(j, i)
@@ -406,6 +402,10 @@ class Renderer:
                             self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
             return 0
         else:
+            for i in range(self.res_y):
+                for j in range(self.res_x):
+                    for k in range(3):
+                        self.buffer[j][i][k] *= .5
             match in_menu:
                 case 1:
                     self.print_str(18, 18, "Menu principal", (1, 1, 1))
