@@ -183,7 +183,7 @@ class Game:
             RESOLUTION_X = SCREEN_WIDTH
             RESOLUTION_Y = SCREEN_HEIGHT
         renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
-        renderer.add_entity(Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/pixel-0077-668142567.png", (1, 1, 1)))
+        renderer.add_entity(Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/no-bg.png", (255, 255, 255)))
 
         # print(maze_to_map(32, 32))
 

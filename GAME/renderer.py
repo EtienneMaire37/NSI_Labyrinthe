@@ -152,10 +152,6 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
             distance_to_entity = math.sqrt(vector_to_entity[0]**2 + vector_to_entity[1]**2)
 
             vector_to_entity = (vector_to_entity[0] / float(distance_to_entity), vector_to_entity[1] / float(distance_to_entity))
-
-            # angle_to_entity = 0
-            # if vector_to_entity[1] != 0:
-            #     angle_to_entity = math.atan(vector_to_entity[0] / vector_to_entity[1])
                 
             angle_to_entity = math.acos(dot_2d(vector_to_entity, (0, 1)))
             if vector_to_entity[0] > 0:
@@ -186,12 +182,12 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                                 h = tex_h
                                 idx_x = int(u * w)
                                 idx_y = int(v * h)
-                                # if tex[idx_x, idx_y - 1, 3] != 0:
                                 if tex[idx_x, idx_y, 0] != alpha[0] or tex[idx_x, idx_y, 1] != alpha[1] or tex[idx_x, idx_y, 2] != alpha[2]:
-                                    zbuffer[ray][y][0] = distance_to_entity 
-                                    buffer[ray][y] = (tex[idx_x, idx_y, 0] / 255, 
-                                                    tex[idx_x, idx_y, 1] / 255, 
-                                                    tex[idx_x, idx_y, 2] / 255) 
+                                    shade = LIGHT_INTENSITY / distance_to_entity
+                                    zbuffer[ray][y][0] = distance_to_entity # Simplification mais ca suffit dans ce cas
+                                    buffer[ray][y] = gamma_correct(tonemap_color((tex[idx_x, idx_y, 0] / 255 * shade, 
+                                                    tex[idx_x, idx_y, 1] / 255 * shade, 
+                                                    tex[idx_x, idx_y, 2] / 255 * shade)))
 
 # Gestion de la police de caractères
 FONT_SIZE = 8
@@ -495,7 +491,7 @@ class Renderer:
                         return 1
                 case 2:
                     self.draw_menu_frame()
-                    self.print_str(18, 18, "Hello, world!\nSecond line\nThird line.", (0, 0, 0))
+                    self.print_str(18, 18, "Terminal", (0, 0, 0))
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0
