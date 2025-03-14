@@ -376,8 +376,9 @@ class Renderer:
     def draw_button(self, x, y, text, color):
         _x, _y, max_x, max_y = self.print_str(x + 2, y + 2, text, color)
         self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
+        return _x, _y, max_x + 2, max_y + 2
                 
-    def update(self, global_time: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
+    def update(self, mouse_x: int, mouse_y: int, global_time: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         anim = idle_animation(global_time, .03)
 
         render_frame(self.buffer, self.zbuffer, player_x + anim[0], player_y + anim[1], player_z + anim[2], player_angle + anim[3], 
@@ -403,13 +404,17 @@ class Renderer:
                     for j in range(5):
                         if i == 0 or i == 4 or j == 0 or j == 4:
                             self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
+            return 0
         else:
             match in_menu:
                 case 1:
                     self.print_str(18, 18, "Menu principal", (1, 1, 1))
-                    self.draw_button(18, 36, "Jouer", (1, 1, 1))
+                    x, y, max_x, max_y = self.draw_button(18, 36, "Jouer", (1, 1, 1))
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        return 1
                 case 2:
                     self.draw_menu_frame()
                     self.print_str(18, 18, "Hello, world!\nSecond line\nThird line.", (0, 0, 0))
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
+            return 0

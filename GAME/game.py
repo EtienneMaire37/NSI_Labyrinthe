@@ -185,5 +185,6 @@ class Game:
         while True:
             self.handleEvents()
             self.update(map1)
-            renderer.update(self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
+            m_x, m_y =  pygame.mouse.get_pos()
+            renderer.update(m_x * RESOLUTION_X / SCREEN_WIDTH, m_y * RESOLUTION_Y / SCREEN_HEIGHT, self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)
