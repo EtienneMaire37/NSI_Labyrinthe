@@ -495,17 +495,41 @@ class Renderer:
                             self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
             return 0
         else:
+            """
+            Boutons:
+            1 : Jouer
+            2 : Recharger la map
+            3 : Rejouer
+            4 : Controles
+            """
+            """
+            Menus:
+            1 : Menu principal
+            2 : Terminal
+            3 : Game over
+            4 : Controles
+            """
             match in_menu:
                 case 1:
                     self.dim_screen()
                     self.print_str(18, 18, "Menu principal", (1, 1, 1))
+                    btn = 0
                     c = 1
                     if click_btn == 1:
                         c = .7
                     x, y, max_x, max_y = self.draw_button(18, 36, "Jouer", (c, c, c))
                     # print(x, y, max_x, max_y)
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        return 1
+                        btn = 1
+                    
+                    c = 1
+                    if click_btn == 4:
+                        c = .7
+                    x, y, max_x, max_y = self.draw_button(18, 36 + 16, "Controles", (c, c, c))
+                    # print(x, y, max_x, max_y)
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        btn = 4
+                    return btn
                 case 2:
                     self.dim_screen()
                     self.draw_menu_frame()
@@ -514,7 +538,7 @@ class Renderer:
                     if click_btn == 2:
                         c = .7
                     c = 1 - c
-                    x, y, max_x, max_y = self.draw_button(18, 18 + 16, "Recharger la map", (c, c, c))
+                    x, y, max_x, max_y = self.draw_button(18, 36, "Recharger la map", (c, c, c))
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 2
                 case 3:
@@ -525,10 +549,13 @@ class Renderer:
                     c = 1
                     if click_btn == 3:
                         c = .7
-                    x, y, max_x, max_y = self.draw_button(18, 18 + 16, "Rejouer", (c, c, c))
+                    x, y, max_x, max_y = self.draw_button(18, 36, "Rejouer", (c, c, c))
                     # print(x, y, max_x, max_y)
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 3
+                case 4:
+                    self.dim_screen()
+                    self.print_str(18, 18, "Controles\nZQSD : Se déplacer\nE : Interagir\nLSHIFT : Courir", (1, 1, 1))
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0

@@ -57,7 +57,7 @@ class Game:
 
         self.entities = []
 
-        self.jumpscare_sound = pygame.mixer.Sound(file = "RESOURCES/sounds/jumpscare4.mp3")
+        self.jumpscare_sound = [pygame.mixer.Sound(file = f"RESOURCES/sounds/jumpscare{i}.mp3") for i in range(4, 6)]
         # self.step_sound = [pygame.mixer.Sound(file = f"RESOURCES/sounds/step{i}.{["wav", "mp3"][i > 0]}") for i in range(1, 5)]
         self.step_sound = []
         for i in range(4):
@@ -184,7 +184,7 @@ class Game:
             keys = pygame.key.get_pressed()
             self.handleMovement(deltaTime, keys, _map)
 
-            if self.in_menu != 1 and self.in_menu != 3: # Si on n'est pas dans le menu principal ou dans l'écran de game over
+            if self.in_menu != 1 and self.in_menu != 3 and self.in_menu != 4: # Si on n'est pas dans le menu principal ou dans l'écran de game over ou dans les controles
                 if keys[pygame.K_q] or keys[pygame.K_d] or keys[pygame.K_z] or keys[pygame.K_s]:
                     self.walking_timer += deltaTime
                 threshold = .45 - (GAME.defines.MOVE_SPEED - 2) * .1
@@ -201,7 +201,7 @@ class Game:
                         self.in_menu = 3    # Game over
                         pygame.mouse.set_visible(True)
                         pygame.event.set_grab(False)
-                        self.jumpscare_sound.play()
+                        self.jumpscare_sound[random.randint(0, 1)].play()
                     self.follow_path(self.entities[i], deltaTime, _map)
                     self.entities[i].walk_sound_timer += deltaTime
                     if self.entities[i].ai_state == "patrol":
@@ -233,6 +233,7 @@ class Game:
 
         self.loading = False
 
+    # Faire suivre le chemin (vers le joueur ou aléatoire) à une entité
     def follow_path(self, entity, delta_time, _map):
         if not entity.path:
             return
@@ -276,6 +277,7 @@ class Game:
                 if _map._map[int(entity.position[1]) * _map.size[0] + int(new_x)] == 0:
                     entity.position = (new_x, entity.position[1], entity.position[2])
 
+    # Génère les entités dans le labyrinthe
     def generate_entities(self, renderer, map):
         for i in range(64):
             pos_x = pos_y = 0
@@ -292,6 +294,7 @@ class Game:
             monster.run_speed = 4 # 3.8
             self.entities.append(monster)
 
+    # Lance le jeu
     def run(self):
         infoObject = pygame.display.Info()
         infoObject = pygame.display.Info()
@@ -325,11 +328,11 @@ class Game:
             if self.mouse_released:
                 if self.click_button == menu:
                     match self.click_button:
-                        case 1:
-                            self.in_menu = 0 # Bouton jouer
+                        case 1:     # Bouton jouer
+                            self.in_menu = 0 
                             pygame.mouse.set_visible(False)
                             pygame.event.set_grab(True)
-                        case 2:
+                        case 2:     # Regénérer le labyrinthe
                             # map1._map, map1.interaction_data = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
                             # renderer.clean_entities()
                             # self.entities = []
@@ -341,7 +344,7 @@ class Game:
                             renderer.clean_entities()
                             self.entities = []
                             self.generate_entities(renderer, map1)
-                        case 3:
+                        case 3:     # Rejouer
                             GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
                             map1 = mp.Map()
                             map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
@@ -353,6 +356,8 @@ class Game:
                             self.player_x, self.player_y = (GAME.defines.MAP1_SIZE_X / 2, GAME.defines.MAP1_SIZE_Y / 2 + 1)
                             self.player_angle = math.pi / 2
                             GAME.defines.MOVE_SPEED = 2
+                        case 4:     # Montre les controles
+                            self.in_menu = 4
                         case _:
                             pass
                 self.click_button = 0
