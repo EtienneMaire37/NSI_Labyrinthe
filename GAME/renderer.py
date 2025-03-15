@@ -8,10 +8,14 @@ from GAME.math import normalize_vector2d, dot_2d, dot_3d, lerp
 from GAME.rays import cast_ray
 from GAME.entity import Entity
 
-# Implémente la formule de tonemapping de Reinhard 
+# # Implémente la formule de tonemapping de Reinhard 
+# @njit(fastmath = True, cache = True)
+# def tonemap_channel(c: float):
+#     return c / (c + 1)
+
 @njit(fastmath = True, cache = True)
 def tonemap_channel(c: float):
-    return c / (c + 1)
+    return math.tanh(c)
 
 @njit(fastmath = True, cache = True)
 def tonemap_color(c: tuple):
@@ -175,7 +179,8 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                     
                     if angle_diff_to_entity < size_x / distance_to_entity / 2:
                         for y in prange(max(min(sprite_high_y, RESOLUTION_Y), 0), max(min(sprite_low_y, RESOLUTION_Y), 0)):
-                            if distance_to_entity < zbuffer[ray][y][0]:
+                            real_distance_to_entity = distance_to_entity  # Simplification mais ca suffit dans ce cas (on suppose que l'entité fait partie d'un arc de cercle dans les calculs de distance (pas d'affichage))
+                            if real_distance_to_entity < zbuffer[ray][y][0]:
                                 v = (y - sprite_high_y) / (sprite_low_y - sprite_high_y)
                                 u = min(2, max(0, (2 - (((((float(angle_to_intersection - angle_to_entity) + math.pi) % (2 * math.pi)) - math.pi + (size_x / (2 * distance_to_entity))) % (2 * math.pi)) / (size_x / (2 * distance_to_entity)))))) / 2
                                 w = tex_w
@@ -184,7 +189,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                                 idx_y = int(v * h)
                                 if tex[idx_x, idx_y, 0] != alpha[0] or tex[idx_x, idx_y, 1] != alpha[1] or tex[idx_x, idx_y, 2] != alpha[2]:
                                     shade = LIGHT_INTENSITY / distance_to_entity
-                                    zbuffer[ray][y][0] = distance_to_entity # Simplification mais ca suffit dans ce cas
+                                    zbuffer[ray][y][0] = real_distance_to_entity
                                     buffer[ray][y] = gamma_correct(tonemap_color((tex[idx_x, idx_y, 0] / 255 * shade, 
                                                     tex[idx_x, idx_y, 1] / 255 * shade, 
                                                     tex[idx_x, idx_y, 2] / 255 * shade)))
@@ -386,7 +391,16 @@ class Renderer:
         entity_dtype = numpy.dtype([
             ('position', numpy.float64, (3,)),
             ('size', numpy.float64, (2,)),
-            ('texture', numpy.uint8, (64, 96, 3)),  # Assuming 64x64 textures
+            ('texture', numpy.uint8, (64, 96, 3)),
+            ('alpha', numpy.uint8, (3,))
+        ])
+        self.entities = numpy.empty(0, dtype=entity_dtype)
+
+    def clean_entities(self):
+        entity_dtype = numpy.dtype([
+            ('position', numpy.float64, (3,)),
+            ('size', numpy.float64, (2,)),
+            ('texture', numpy.uint8, (64, 96, 3)),
             ('alpha', numpy.uint8, (3,))
         ])
         self.entities = numpy.empty(0, dtype=entity_dtype)

@@ -184,8 +184,7 @@ class Game:
             RESOLUTION_Y = SCREEN_HEIGHT
         renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
         renderer.add_entity(Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/no-bg.png", (255, 255, 255)))
-
-        # print(maze_to_map(32, 32))
+        # renderer.clean_entities()
 
         map1 = mp.Map()
         map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
