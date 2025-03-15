@@ -22,5 +22,6 @@ class Entity:
         self.path = []
         self.detection_radius = 5.0
         self.hearing_radius = 3.0
-        self.speed = 0.05
+        self.speed = 2.5
+        self.run_speed = 3.5
         self.last_seen_player_pos = (0, 0)

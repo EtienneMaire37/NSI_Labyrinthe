@@ -24,7 +24,7 @@ ROTATION_SPEED = 2          # Vitesse de rotation
 LOAD_TIME = 2               # Temps de chargement
 MAX_PLAYER_INTERACTION_RANGE = 2    # Distance maximum d'interaction
 ENTITY_WALK_SOUND_SPEED = .8
-ENTITY_RUN_SOUND_SPEED = .3
+ENTITY_RUN_SOUND_SPEED = .25
 
 GAME_TITLE = "Jeu NSI"
 MENU_OUTLINE = 10

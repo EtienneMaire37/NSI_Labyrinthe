@@ -31,7 +31,7 @@ def tonemap_color(c: tuple):
 
 @njit(fastmath = True, cache = True)
 def gamma_correct(c: tuple):
-    return (math.sqrt(c[0]), math.sqrt(c[1]), math.sqrt(c[2])) # (c[0]**(1 / 2.2), c[1]**(1 / 2.2), c[2]**(1 / 2.2))
+    return (c[0]**.9, c[1]**.9, c[2]**.9)# (math.sqrt(c[0]), math.sqrt(c[1]), math.sqrt(c[2])) # (c[0]**(1 / 2.2), c[1]**(1 / 2.2), c[2]**(1 / 2.2))
 
 # Calcule une image et la retourne dans la liste 'buffer'
 @njit(parallel = True, fastmath = True, cache = True)
@@ -188,7 +188,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                                 idx_x = int(u * w)
                                 idx_y = int(v * h)
                                 if tex[idx_x, idx_y, 0] != alpha[0] or tex[idx_x, idx_y, 1] != alpha[1] or tex[idx_x, idx_y, 2] != alpha[2]:
-                                    shade = LIGHT_INTENSITY / distance_to_entity
+                                    shade = LIGHT_INTENSITY / distance_to_entity * .7 # Pour les rendre plus sombres
                                     zbuffer[ray][y][0] = real_distance_to_entity
                                     buffer[ray][y] = gamma_correct(tonemap_color((tex[idx_x, idx_y, 0] / 255 * shade, 
                                                     tex[idx_x, idx_y, 1] / 255 * shade, 

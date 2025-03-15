@@ -190,10 +190,11 @@ class Game:
                         self.entities[i].walk_sound_timer = 0
                         # print("ws")
                         distance_to_entity = math.sqrt((self.player_x - self.entities[i].position[0])**2 + (self.player_y - self.entities[i].position[1])**2)
-                        vol = min(1, max(0, -2 * math.log10(.3 * distance_to_entity / math.sqrt(10))))
+                        rvol = 1 / (.7 * distance_to_entity)**2# math.log10(10 / (distance_to_entity * .3)**2)
+                        vol = min(1, max(0, rvol))
                         self.entities[i].walk_sound.set_volume(vol)
                         # print(max(0, -2 * math.log10(.3 * distance_to_entity / math.sqrt(10))))
-                        if vol != 0:
+                        if vol > .01:
                             self.entities[i].walk_sound.play()
                     # self.entities[i] = entity
 
@@ -233,8 +234,12 @@ class Game:
         else:
             return
         
-        new_x = entity.position[0] + move_dir[0] * entity.speed * delta_time
-        new_y = entity.position[1] + move_dir[1] * entity.speed * delta_time
+        if entity.ai_state == "patrol":
+            speed = entity.speed
+        else:
+            speed = entity.run_speed
+        new_x = entity.position[0] + move_dir[0] * speed * delta_time
+        new_y = entity.position[1] + move_dir[1] * speed * delta_time
         
         grid_x = int(new_x)
         grid_y = int(new_y)
@@ -261,6 +266,8 @@ class Game:
             renderer.add_entity(monster)
             monster.detection_radius = 7.0
             monster.speed = 3
+            monster.speed = 3
+            monster.run_speed = 5
             self.entities.append(monster)
 
     def run(self):
@@ -301,7 +308,14 @@ class Game:
                             pygame.mouse.set_visible(False)
                             pygame.event.set_grab(True)
                         case 2:
-                            map1._map, map1.interaction_data = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                            # map1._map, map1.interaction_data = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                            # renderer.clean_entities()
+                            # self.entities = []
+                            # self.generate_entities(renderer, map1)
+                            GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                            map1 = mp.Map()
+                            map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
+                                                ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
                             renderer.clean_entities()
                             self.entities = []
                             self.generate_entities(renderer, map1)
