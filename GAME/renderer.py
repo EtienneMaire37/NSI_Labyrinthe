@@ -461,8 +461,8 @@ class Renderer:
         self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
         return x, y, max_x + 2, max_y + 2
                 
-    def update(self, click_btn: int, mouse_x: int, mouse_y: int, global_time: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
-        anim = idle_animation(global_time, .03)
+    def update(self, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
+        anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
 
         render_frame(self.buffer, self.zbuffer, player_x + anim[0], player_y + anim[1], player_z + anim[2], player_angle + anim[3], 
                      _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.entities, self.res_x, self.res_y)

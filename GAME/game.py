@@ -8,6 +8,7 @@ from GAME.rays import cast_ray
 import GAME.map as mp
 from GAME.entity import Entity
 from GAME.pathfinding import a_star
+from GAME.math import lerp
 import random
 
 class Game:
@@ -40,6 +41,7 @@ class Game:
         self.mouse_moved = False
         self.total_time = 0
         self.total_move_time = 0
+        self.cam_anim_time = 0
 
         self.loading = True
 
@@ -100,6 +102,14 @@ class Game:
         if self.mouse_moved:
             self.player_angle += self.mouse_mov[0] * delta_time * GAME.defines.ROTATION_SPEED / 10
 
+        if keys[pygame.K_LSHIFT]:
+            # GAME.defines.MOVE_SPEED = 2.5
+            GAME.defines.MOVE_SPEED = lerp(GAME.defines.MOVE_SPEED, 3, 2 * delta_time)
+        else:
+            GAME.defines.MOVE_SPEED = lerp(GAME.defines.MOVE_SPEED, 2, 2 * delta_time)
+
+        # print(GAME.defines.MOVE_SPEED)
+
         if keys[pygame.K_z]:
             self.player_x += -1 * math.sin(self.player_angle) * GAME.defines.MOVE_SPEED * delta_time
             if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
@@ -159,6 +169,7 @@ class Game:
 
         if (not self.loading) and deltaTime < .1:
             self.total_time += deltaTime
+            self.cam_anim_time += deltaTime * (1 + (GAME.defines.MOVE_SPEED - 2) * 5)
 
             keys = pygame.key.get_pressed()
             self.handleMovement(deltaTime, keys, _map)
@@ -258,7 +269,7 @@ class Game:
             self.handleEvents()
             self.update(map1)
             m_x, m_y =  pygame.mouse.get_pos()
-            menu = renderer.update(self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.total_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
+            menu = renderer.update(GAME.defines.MOVE_SPEED, self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.cam_anim_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)
 
             if self.mouse_clicked:
@@ -306,7 +317,8 @@ class Game:
                         else:
                             entity.path = a_star((pos_x, pos_y), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
                     else:
-                        entity.ai_state = "patrol"
+                        if len(entity.path) <= 1:
+                            entity.ai_state = "patrol"
                 else:
                     if has_los or distance < entity.hearing_radius:
                         entity.ai_state = "chase"
