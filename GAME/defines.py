@@ -19,9 +19,8 @@ WALL_LOW = -1.5               # Point bas du mur
 WALL_HIGH = 1.8               # Point haut du mur
 
 MOVE_SPEED = 2              # Vitesse de déplacement
-ENTITY_MOVE_SPEED = 1       # Vitesse des entités
 ENTITY_DAMAGE = 5
-ROTATION_SPEED = 1.5          # Vitesse de rotation
+ROTATION_SPEED = 2          # Vitesse de rotation
 LOAD_TIME = 2               # Temps de chargement
 MAX_PLAYER_INTERACTION_RANGE = 2    # Distance maximum d'interaction
 
@@ -40,7 +39,7 @@ HALF_RES_X = RESOLUTION_X // 2
 HALF_RES_Y = RESOLUTION_Y // 2
 
 # Map de test
-MAP1_SIZE_X = 2047 # 33 # 257
-MAP1_SIZE_Y = 2047 # 33 # 257
+MAP1_SIZE_X = 257 # 2047 # 33 # 257
+MAP1_SIZE_Y = 257 # 2047 # 33 # 257
 
 MAP1, MAP1_INTERACT = maze_to_map(MAP1_SIZE_X, MAP1_SIZE_Y)

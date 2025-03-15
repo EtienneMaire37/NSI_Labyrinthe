@@ -76,7 +76,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
             for y in prange(wall_high_y, wall_low_y + 1):
                 v = (y - wall_high_y) / (wall_low_y - wall_high_y + 1)
                 if 0 <= y < RESOLUTION_Y: 
-                    tex_idx = wall_type - 1 # int(ord(wall_type) - ord('1')) 
+                    tex_idx = (wall_type - 1) % len(_map_textures) # int(ord(wall_type) - ord('1')) 
                     uv = ((off_x + off_y) % 1, v)
 
                     color = (1, 0, 0)
@@ -506,6 +506,13 @@ class Renderer:
                 case 2:
                     self.draw_menu_frame()
                     self.print_str(18, 18, "Terminal", (0, 0, 0))
+                    c = 1
+                    if click_btn == 2:
+                        c = .7
+                    c = 1 - c
+                    x, y, max_x, max_y = self.draw_button(18, 18 + 16, "Recharger la map", (c, c, c))
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        return 2
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0

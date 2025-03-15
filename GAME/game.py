@@ -221,6 +221,19 @@ class Game:
                 if _map._map[int(entity.position[1]) * _map.size[0] + int(new_x)] == 0:
                     entity.position = (new_x, entity.position[1], entity.position[2])
 
+    def generate_entities(self, renderer, map):
+        for i in range(64):
+            pos_x = pos_y = 0
+            while map._map[int(pos_x) + map.size[0] * int(pos_y)] != 0 or math.sqrt((pos_x - self.player_x)**2 + (pos_y - self.player_y)**2) < 0 or (pos_x == 0 and pos_y == 0):
+                pos_x = random.randint(0, map.size[0] - 1)
+                pos_y = random.randint(0, map.size[1] - 1)
+            # print(pos_x - self.player_x, pos_y - self.player_y)
+            monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255))
+            renderer.add_entity(monster)
+            monster.detection_radius = 7.0
+            monster.speed = 3
+            self.entities.append(monster)
+
     def run(self):
         infoObject = pygame.display.Info()
         infoObject = pygame.display.Info()
@@ -237,11 +250,8 @@ class Game:
                             ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
 
         renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
-        monster = Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/no-bg.png", (255, 255, 255))
-        renderer.add_entity(monster)
-        monster.detection_radius = 7.0
-        monster.speed = 2
-        self.entities.append(monster)
+        # for i in range(4096):   # Une entité pour 32x32 blocks | bcp trop pour les performances
+        self.generate_entities(renderer, map1)
         # renderer.clean_entities()
 
         while True:
@@ -261,12 +271,19 @@ class Game:
                             self.in_menu = 0 # Bouton jouer
                             pygame.mouse.set_visible(False)
                             pygame.event.set_grab(True)
+                        case 2:
+                            map1._map, map1.interaction_data = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                            renderer.clean_entities()
+                            self.entities = []
+                            self.generate_entities(renderer, map1)
                         case _:
                             pass
                 self.click_button = 0
             for i in range(min(len(renderer.entities), len(self.entities))):
                 # renderer.entities[i] = self.entities[i]
                 renderer.entities[i]['position'] = self.entities[i].position
+                self.entities[i].position = (self.entities[i].position[0] + .5, self.entities[i].position[1] + .5, self.entities[i].position[2])
+                # print(renderer.entities[i]['position'])
 
                 entity = self.entities[i]
                 distance = math.sqrt((entity.position[0] - self.player_x)**2 + (entity.position[1] - self.player_y)**2)
@@ -280,7 +297,7 @@ class Game:
                         dy = 0.01
                     dist, hit, _, _, _, _, _ = cast_ray(dx, dy, entity.position[0], entity.position[1], 0, map1._map, map1.size)
                     has_los = dist >= distance - 1
-                pos_x, pos_y = (int(entity.position[0]), int(entity.position[1]))
+                pos_x, pos_y = (int(entity.position[0] - .5), int(entity.position[1] - .5))
                 if entity.ai_state == "chase":
                     if has_los or distance < entity.hearing_radius:
                         if len(entity.path) != 0:
@@ -297,8 +314,10 @@ class Game:
                         if len(entity.path) != 0:
                             next_tile = entity.path[0]
                         else:
-                            next_tile = entity.position
+                            next_tile = (int(entity.position[0] - .5), int(entity.position[1] - .5))
                         new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
                         while map1._map[int(new_next_tile[0]) + int(new_next_tile[1]) * map1.size[0]] != 0:
                             new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
                         entity.path = [next_tile] + [new_next_tile]
+
+                self.entities[i].position = (self.entities[i].position[0] - .5, self.entities[i].position[1] - .5, self.entities[i].position[2])
