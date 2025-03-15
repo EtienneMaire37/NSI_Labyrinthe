@@ -460,13 +460,19 @@ class Renderer:
         _x, _y, max_x, max_y = self.print_str(x + 2, y + 2, text, color)
         self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
         return x, y, max_x + 2, max_y + 2
-                
+    
+    def dim_screen(self):
+        for i in range(self.res_y):
+                for j in range(self.res_x):
+                    for k in range(3):
+                        self.buffer[j][i][k] *= .5
     def update(self, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
-        anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
+        if in_menu != 3:
+            anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
 
-        render_frame(self.buffer, self.zbuffer, player_x + anim[0], player_y + anim[1], player_z + anim[2], player_angle + anim[3], 
-                     _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.entities, self.res_x, self.res_y)
-        
+            render_frame(self.buffer, self.zbuffer, player_x + anim[0], player_y + anim[1], player_z + anim[2], player_angle + anim[3], 
+                        _map._map, _map.size, _map.textures, _map.textures_size, _map.floor_texture_index, _map.ceiling_texture_index, self.entities, self.res_x, self.res_y)
+            
         if in_menu == 0:
             HALF_RES_X = self.res_x // 2
             HALF_RES_Y = self.res_y // 2
@@ -489,12 +495,9 @@ class Renderer:
                             self.invert_pixel(HALF_RES_X - 2 + j, HALF_RES_Y - 2 + i)
             return 0
         else:
-            for i in range(self.res_y):
-                for j in range(self.res_x):
-                    for k in range(3):
-                        self.buffer[j][i][k] *= .5
             match in_menu:
                 case 1:
+                    self.dim_screen()
                     self.print_str(18, 18, "Menu principal", (1, 1, 1))
                     c = 1
                     if click_btn == 1:
@@ -504,6 +507,7 @@ class Renderer:
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 1
                 case 2:
+                    self.dim_screen()
                     self.draw_menu_frame()
                     self.print_str(18, 18, "Terminal", (0, 0, 0))
                     c = 1
@@ -513,6 +517,18 @@ class Renderer:
                     x, y, max_x, max_y = self.draw_button(18, 18 + 16, "Recharger la map", (c, c, c))
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 2
+                case 3:
+                    for i in range(self.res_y):
+                        for j in range(self.res_x):
+                            self.buffer[j][i] = (0, 0, 0)
+                    self.print_str(18, 18, "GAME OVER", (1, 0, 0))
+                    c = 1
+                    if click_btn == 1:
+                        c = .7
+                    x, y, max_x, max_y = self.draw_button(18, 18 + 16, "Rejouer", (c, c, c))
+                    # print(x, y, max_x, max_y)
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        return 3
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0

@@ -57,6 +57,8 @@ class Game:
 
         self.entities = []
 
+        self.jumpscare_sound = pygame.mixer.Sound(file = "RESOURCES/sounds/jumpscare4.mp3")
+
         if self.in_menu == 0:
             pygame.mouse.set_visible(False)
             pygame.event.set_grab(True)
@@ -175,11 +177,15 @@ class Game:
             keys = pygame.key.get_pressed()
             self.handleMovement(deltaTime, keys, _map)
 
-            if self.in_menu != 1: # Si on n'est pas dans le menu principal
+            if self.in_menu != 1 and self.in_menu != 3: # Si on n'est pas dans le menu principal ou dans l'écran de game over
                 # for entity in self.entities:
                 for i in range(len(self.entities)):
                     # self.update_entity_ai(entity, _map, deltaTime)
                     # entity = self.entities[i]
+                    distance_to_entity = math.sqrt((self.player_x - self.entities[i].position[0])**2 + (self.player_y - self.entities[i].position[1])**2)
+                    if distance_to_entity < 1:
+                        self.in_menu = 3    # Game over
+                        self.jumpscare_sound.play()
                     self.follow_path(self.entities[i], deltaTime, _map)
                     self.entities[i].walk_sound_timer += deltaTime
                     if self.entities[i].ai_state == "patrol":
@@ -189,7 +195,6 @@ class Game:
                     if self.entities[i].walk_sound_timer > threshold:
                         self.entities[i].walk_sound_timer = 0
                         # print("ws")
-                        distance_to_entity = math.sqrt((self.player_x - self.entities[i].position[0])**2 + (self.player_y - self.entities[i].position[1])**2)
                         rvol = 1 / (.7 * distance_to_entity)**2# math.log10(10 / (distance_to_entity * .3)**2)
                         vol = min(1, max(0, rvol))
                         self.entities[i].walk_sound.set_volume(vol)
@@ -312,6 +317,14 @@ class Game:
                             # renderer.clean_entities()
                             # self.entities = []
                             # self.generate_entities(renderer, map1)
+                            GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                            map1 = mp.Map()
+                            map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
+                                                ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
+                            renderer.clean_entities()
+                            self.entities = []
+                            self.generate_entities(renderer, map1)
+                        case 3:
                             GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
                             map1 = mp.Map()
                             map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
