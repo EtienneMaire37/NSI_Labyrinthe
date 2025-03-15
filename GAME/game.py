@@ -186,7 +186,6 @@ class Game:
         if not entity.path:
             return
 
-        # Get current target cell center
         target_x = entity.path[0][0] + 0.5
         target_y = entity.path[0][1] + 0.5
         
@@ -194,37 +193,30 @@ class Game:
         dy = target_y - entity.position[1]
         distance = math.hypot(dx, dy)
         
-        if distance < 0.1:  # Reached current target
+        if distance < 0.1:
             entity.path.pop(0)
             if not entity.path:
                 return
             return self.follow_path(entity, delta_time, _map)
         
-        # Normalize direction
         if distance > 0:
             move_dir = (dx/distance, dy/distance)
         else:
             return
         
-        # Calculate proposed new position
         new_x = entity.position[0] + move_dir[0] * entity.speed * delta_time
         new_y = entity.position[1] + move_dir[1] * entity.speed * delta_time
         
-        # Check if new position is in wall
         grid_x = int(new_x)
         grid_y = int(new_y)
         if _map._map[grid_y * _map.size[0] + grid_x] == 0:
-            # Valid move
             entity.position = (new_x, new_y, entity.position[2])
         else:
-            # Hit obstacle - try to slide
             if _map._map[grid_y * _map.size[0] + int(entity.position[0])] == 0:
-                # Try moving only in Y direction
                 new_y = entity.position[1] + move_dir[1] * entity.speed * delta_time
                 if _map._map[int(new_y) * _map.size[0] + int(entity.position[0])] == 0:
                     entity.position = (entity.position[0], new_y, entity.position[2])
             elif _map._map[int(entity.position[1]) * _map.size[0] + grid_x] == 0:
-                # Try moving only in X direction
                 new_x = entity.position[0] + move_dir[0] * entity.speed * delta_time
                 if _map._map[int(entity.position[1]) * _map.size[0] + int(new_x)] == 0:
                     entity.position = (new_x, entity.position[1], entity.position[2])
@@ -246,7 +238,6 @@ class Game:
 
         renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
         monster = Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/no-bg.png", (255, 255, 255))
-        monster.path = a_star((int(monster.position[0]), int(monster.position[1])), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
         renderer.add_entity(monster)
         monster.detection_radius = 7.0
         monster.speed = 2
@@ -267,7 +258,7 @@ class Game:
                 if self.click_button == menu:
                     match self.click_button:
                         case 1:
-                            self.in_menu = 0 # Play button
+                            self.in_menu = 0 # Bouton jouer
                             pygame.mouse.set_visible(False)
                             pygame.event.set_grab(True)
                         case _:
@@ -276,8 +267,38 @@ class Game:
             for i in range(min(len(renderer.entities), len(self.entities))):
                 # renderer.entities[i] = self.entities[i]
                 renderer.entities[i]['position'] = self.entities[i].position
-                if len(self.entities[i].path) != 0:
-                    next_tile = self.entities[i].path[0]
-                    self.entities[i].path = [next_tile] + a_star((int(self.entities[i].position[0]), int(self.entities[i].position[1])), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+
+                entity = self.entities[i]
+                distance = math.sqrt((entity.position[0] - self.player_x)**2 + (entity.position[1] - self.player_y)**2)
+                has_los = False
+                if distance < entity.detection_radius:
+                    dx = self.player_x - entity.position[0]
+                    dy = self.player_y - entity.position[1]
+                    if dx == 0:
+                        dx = 0.01
+                    if dy == 0:
+                        dy = 0.01
+                    dist, hit, _, _, _, _, _ = cast_ray(dx, dy, entity.position[0], entity.position[1], 0, map1._map, map1.size)
+                    has_los = dist >= distance - 1
+                pos_x, pos_y = (int(entity.position[0]), int(entity.position[1]))
+                if entity.ai_state == "chase":
+                    if has_los or distance < entity.hearing_radius:
+                        if len(entity.path) != 0:
+                            next_tile = entity.path[0]
+                            entity.path = [next_tile] + a_star((pos_x, pos_y), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                        else:
+                            entity.path = a_star((pos_x, pos_y), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                    else:
+                        entity.ai_state = "patrol"
                 else:
-                    self.entities[i].path = a_star((int(self.entities[i].position[0]), int(self.entities[i].position[1])), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                    if has_los or distance < entity.hearing_radius:
+                        entity.ai_state = "chase"
+                    else:
+                        if len(entity.path) != 0:
+                            next_tile = entity.path[0]
+                        else:
+                            next_tile = entity.position
+                        new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
+                        while map1._map[int(new_next_tile[0]) + int(new_next_tile[1]) * map1.size[0]] != 0:
+                            new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
+                        entity.path = [next_tile] + [new_next_tile]
