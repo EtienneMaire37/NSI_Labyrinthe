@@ -12,3 +12,11 @@ class Entity:
         self.texture = pygame.surfarray.array3d(tex).astype(numpy.uint8)
         self.texture_size = tex.get_size()
         self.alpha_color = alpha
+        self.ai_state = "patrol"  # "patrol" or "chase"
+        self.patrol_path = []
+        self.current_patrol_target = 0
+        self.path = []
+        self.detection_radius = 5.0
+        self.hearing_radius = 3.0
+        self.speed = 0.05
+        self.last_seen_player_pos = (0, 0)

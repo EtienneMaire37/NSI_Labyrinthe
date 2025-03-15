@@ -7,6 +7,8 @@ from GAME.renderer import normalize_vector2d, Renderer
 from GAME.rays import cast_ray
 import GAME.map as mp
 from GAME.entity import Entity
+from GAME.pathfinding import a_star
+import random
 
 class Game:
     def __init__(self, _player_x: float, _player_y: float):
@@ -49,6 +51,8 @@ class Game:
         self.click_button = 0
         self.mouse_clicked = False
         self.mouse_released = False
+
+        self.entities = []
 
         if self.in_menu == 0:
             pygame.mouse.set_visible(False)
@@ -158,6 +162,12 @@ class Game:
 
             keys = pygame.key.get_pressed()
             self.handleMovement(deltaTime, keys, _map)
+
+            if self.in_menu != 1: # Si on n'est pas dans le menu principal
+                for entity in self.entities:
+                    # self.update_entity_ai(entity, _map, deltaTime)
+                    self.follow_path(entity, deltaTime, _map)
+
         pygame.display.set_caption(GAME.defines.GAME_TITLE + f" | FPS: {int(1 / deltaTime)}")
 
     def display(self, buffer: list):
@@ -172,6 +182,53 @@ class Game:
 
         self.loading = False
 
+    def follow_path(self, entity, delta_time, _map):
+        if not entity.path:
+            return
+
+        # Get current target cell center
+        target_x = entity.path[0][0] + 0.5
+        target_y = entity.path[0][1] + 0.5
+        
+        dx = target_x - entity.position[0]
+        dy = target_y - entity.position[1]
+        distance = math.hypot(dx, dy)
+        
+        if distance < 0.1:  # Reached current target
+            entity.path.pop(0)
+            if not entity.path:
+                return
+            return self.follow_path(entity, delta_time, _map)
+        
+        # Normalize direction
+        if distance > 0:
+            move_dir = (dx/distance, dy/distance)
+        else:
+            return
+        
+        # Calculate proposed new position
+        new_x = entity.position[0] + move_dir[0] * entity.speed * delta_time
+        new_y = entity.position[1] + move_dir[1] * entity.speed * delta_time
+        
+        # Check if new position is in wall
+        grid_x = int(new_x)
+        grid_y = int(new_y)
+        if _map._map[grid_y * _map.size[0] + grid_x] == 0:
+            # Valid move
+            entity.position = (new_x, new_y, entity.position[2])
+        else:
+            # Hit obstacle - try to slide
+            if _map._map[grid_y * _map.size[0] + int(entity.position[0])] == 0:
+                # Try moving only in Y direction
+                new_y = entity.position[1] + move_dir[1] * entity.speed * delta_time
+                if _map._map[int(new_y) * _map.size[0] + int(entity.position[0])] == 0:
+                    entity.position = (entity.position[0], new_y, entity.position[2])
+            elif _map._map[int(entity.position[1]) * _map.size[0] + grid_x] == 0:
+                # Try moving only in X direction
+                new_x = entity.position[0] + move_dir[0] * entity.speed * delta_time
+                if _map._map[int(entity.position[1]) * _map.size[0] + int(new_x)] == 0:
+                    entity.position = (new_x, entity.position[1], entity.position[2])
+
     def run(self):
         infoObject = pygame.display.Info()
         infoObject = pygame.display.Info()
@@ -182,13 +239,19 @@ class Game:
         if GAME.defines.FULL_RES:
             RESOLUTION_X = SCREEN_WIDTH
             RESOLUTION_Y = SCREEN_HEIGHT
-        renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
-        renderer.add_entity(Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/no-bg.png", (255, 255, 255)))
-        # renderer.clean_entities()
 
         map1 = mp.Map()
         map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
                             ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
+
+        renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
+        monster = Entity(self.player_x + 2, self.player_y, self.player_z, 1, 1, "RESOURCES/monsters/no-bg.png", (255, 255, 255))
+        monster.path = a_star((int(monster.position[0]), int(monster.position[1])), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+        renderer.add_entity(monster)
+        monster.detection_radius = 7.0
+        monster.speed = 2
+        self.entities.append(monster)
+        # renderer.clean_entities()
 
         while True:
             self.handleEvents()
@@ -210,3 +273,11 @@ class Game:
                         case _:
                             pass
                 self.click_button = 0
+            for i in range(min(len(renderer.entities), len(self.entities))):
+                # renderer.entities[i] = self.entities[i]
+                renderer.entities[i]['position'] = self.entities[i].position
+                if len(self.entities[i].path) != 0:
+                    next_tile = self.entities[i].path[0]
+                    self.entities[i].path = [next_tile] + a_star((int(self.entities[i].position[0]), int(self.entities[i].position[1])), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                else:
+                    self.entities[i].path = a_star((int(self.entities[i].position[0]), int(self.entities[i].position[1])), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
