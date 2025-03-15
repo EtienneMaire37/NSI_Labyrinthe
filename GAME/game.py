@@ -14,7 +14,7 @@ import random
 class Game:
     def __init__(self, _player_x: float, _player_y: float):
         pygame.init()
-        pygame.mixer.init()
+        pygame.mixer.init(channels = 8) # Jusqu'à 8 sons en meme temps
 
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION])
         # pygame.mouse.set_visible(False)
@@ -230,7 +230,7 @@ class Game:
             return self.follow_path(entity, delta_time, _map)
         
         if distance > 0:
-            move_dir = (dx/distance, dy/distance)
+            move_dir = (dx / distance, dy / distance)
         else:
             return
         
@@ -267,7 +267,7 @@ class Game:
             monster.detection_radius = 7.0
             monster.speed = 3
             monster.speed = 3
-            monster.run_speed = 5
+            monster.run_speed = 4.7
             self.entities.append(monster)
 
     def run(self):
