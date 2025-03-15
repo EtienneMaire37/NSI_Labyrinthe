@@ -58,6 +58,13 @@ class Game:
         self.entities = []
 
         self.jumpscare_sound = pygame.mixer.Sound(file = "RESOURCES/sounds/jumpscare4.mp3")
+        # self.step_sound = [pygame.mixer.Sound(file = f"RESOURCES/sounds/step{i}.{["wav", "mp3"][i > 0]}") for i in range(1, 5)]
+        self.step_sound = []
+        for i in range(4):
+            ext = [".wav", ".mp3"]
+            self.step_sound.append(pygame.mixer.Sound(file = "RESOURCES/sounds/step" + str(i + 1) + ext[i > 0]))
+            self.step_sound[i].set_volume(.2)
+        self.walking_timer = 0
 
         if self.in_menu == 0:
             pygame.mouse.set_visible(False)
@@ -178,6 +185,13 @@ class Game:
             self.handleMovement(deltaTime, keys, _map)
 
             if self.in_menu != 1 and self.in_menu != 3: # Si on n'est pas dans le menu principal ou dans l'écran de game over
+                if keys[pygame.K_q] or keys[pygame.K_d] or keys[pygame.K_z] or keys[pygame.K_s]:
+                    self.walking_timer += deltaTime
+                threshold = .45 - (GAME.defines.MOVE_SPEED - 2) * .1
+                if self.walking_timer > threshold:
+                    self.walking_timer = 0
+                    self.step_sound[random.randint(0, 3)].play()
+                    
                 # for entity in self.entities:
                 for i in range(len(self.entities)):
                     # self.update_entity_ai(entity, _map, deltaTime)
