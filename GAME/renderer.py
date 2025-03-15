@@ -348,7 +348,8 @@ def get_char_matrix(c):
         '/': [0x02,0x04,0x08,0x10,0x20,0x40,0x80,0x00],
         '\\': [0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x00],
         '%': [0x63,0x66,0x0C,0x18,0x30,0x66,0xC6,0x00],
-        '$': [0x18,0x3E,0x60,0x3C,0x06,0x7C,0x18,0x00]
+        '$': [0x18,0x3E,0x60,0x3C,0x06,0x7C,0x18,0x00],
+        ':': [0x00,0x18,0x18,0x00,0x00,0x18,0x18,0x00]
     }
     
     matrix = font.get(c, font['?'])
@@ -508,6 +509,7 @@ class Renderer:
             2 : Terminal
             3 : Game over
             4 : Controles
+            5 : Retour (controles)
             """
             match in_menu:
                 case 1:
@@ -555,7 +557,14 @@ class Renderer:
                         return 3
                 case 4:
                     self.dim_screen()
-                    self.print_str(18, 18, "Controles\nZQSD : Se déplacer\nE : Interagir\nLSHIFT : Courir", (1, 1, 1))
+                    self.print_str(18, 18, "Controles\n\nZQSD     Se deplacer\nE        Interagir\nLSHIFT   Courir", (1, 1, 1))
+                    c = 1
+                    if click_btn == 5:
+                        c = .7
+                    x, y, max_x, max_y = self.draw_button(18, 18 + 6 * 16, "Retour", (c, c, c))
+                    # print(x, y, max_x, max_y)
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        return 5
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0

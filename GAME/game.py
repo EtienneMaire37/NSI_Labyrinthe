@@ -168,7 +168,7 @@ class Game:
 
                     pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
                     self.last_mouse_reset = True
-            elif self.in_menu != 1:
+            elif self.in_menu != 1 and self.in_menu != 3 and self.in_menu != 4:
                 self.in_menu = 0
                 pygame.mouse.set_visible(False)
                 pygame.event.set_grab(True)
@@ -358,6 +358,8 @@ class Game:
                             GAME.defines.MOVE_SPEED = 2
                         case 4:     # Montre les controles
                             self.in_menu = 4
+                        case 5:     # Retour (controles)
+                            self.in_menu = 1
                         case _:
                             pass
                 self.click_button = 0
