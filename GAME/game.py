@@ -224,7 +224,7 @@ class Game:
     def generate_entities(self, renderer, map):
         for i in range(64):
             pos_x = pos_y = 0
-            while map._map[int(pos_x) + map.size[0] * int(pos_y)] != 0 or math.sqrt((pos_x - self.player_x)**2 + (pos_y - self.player_y)**2) < 0 or (pos_x == 0 and pos_y == 0):
+            while map._map[int(pos_x) + map.size[0] * int(pos_y)] != 0 or math.sqrt((pos_x - self.player_x)**2 + (pos_y - self.player_y)**2) < 20 or (pos_x == 0 and pos_y == 0):
                 pos_x = random.randint(0, map.size[0] - 1)
                 pos_y = random.randint(0, map.size[1] - 1)
             # print(pos_x - self.player_x, pos_y - self.player_y)
