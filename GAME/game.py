@@ -183,8 +183,10 @@ class Game:
                     # self.update_entity_ai(entity, _map, deltaTime)
                     # entity = self.entities[i]
                     distance_to_entity = math.sqrt((self.player_x - self.entities[i].position[0])**2 + (self.player_y - self.entities[i].position[1])**2)
-                    if distance_to_entity < 1:
+                    if distance_to_entity < .55:
                         self.in_menu = 3    # Game over
+                        pygame.mouse.set_visible(True)
+                        pygame.event.set_grab(False)
                         self.jumpscare_sound.play()
                     self.follow_path(self.entities[i], deltaTime, _map)
                     self.entities[i].walk_sound_timer += deltaTime
@@ -270,9 +272,10 @@ class Game:
             monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255), "RESOURCES/sounds/monster-walk.mp3")
             renderer.add_entity(monster)
             monster.detection_radius = 7.0
-            monster.speed = 3
-            monster.speed = 3
-            monster.run_speed = 4.7
+            # monster.speed = 3
+            # monster.run_speed = 4.7
+            monster.speed = 2.5
+            monster.run_speed = 4 # 3.8
             self.entities.append(monster)
 
     def run(self):
@@ -332,6 +335,10 @@ class Game:
                             renderer.clean_entities()
                             self.entities = []
                             self.generate_entities(renderer, map1)
+                            self.in_menu = 1
+                            self.player_x, self.player_y = (GAME.defines.MAP1_SIZE_X / 2, GAME.defines.MAP1_SIZE_Y / 2 + 1)
+                            self.player_angle = math.pi / 2
+                            GAME.defines.MOVE_SPEED = 2
                         case _:
                             pass
                 self.click_button = 0

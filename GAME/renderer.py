@@ -523,7 +523,7 @@ class Renderer:
                             self.buffer[j][i] = (0, 0, 0)
                     self.print_str(18, 18, "GAME OVER", (1, 0, 0))
                     c = 1
-                    if click_btn == 1:
+                    if click_btn == 3:
                         c = .7
                     x, y, max_x, max_y = self.draw_button(18, 18 + 16, "Rejouer", (c, c, c))
                     # print(x, y, max_x, max_y)
