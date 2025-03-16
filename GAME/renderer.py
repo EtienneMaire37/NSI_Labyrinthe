@@ -425,7 +425,7 @@ class Renderer:
                 c = tex[int(j * tex_width / sz_x), int(i * tex_height / sz_y)]
                 self.buffer[j + x, i + y] = (c[0] / 255, c[1] / 255, c[2] / 255)
 
-    def update(self, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
+    def update(self, points: int, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:
             anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
 
@@ -524,6 +524,8 @@ class Renderer:
                     x, y, max_x, max_y = self.draw_button(18, 36, "Recharger la map", (c, c, c))
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 2
+                    
+                    self.print_str(18, 36 + 16, f"Points : {points}", (0, 0, 0))
                 case 3:
                     for i in range(self.res_y):
                         for j in range(self.res_x):

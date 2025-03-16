@@ -69,6 +69,7 @@ class Game:
             self.step_sound.append(pygame.mixer.Sound(file = "RESOURCES/sounds/step" + str(i + 1) + ext[i > 0]))
             self.step_sound[i].set_volume(.2)
         self.walking_timer = 0
+        self.points = 0
 
         if self.in_menu == 0:
             pygame.mouse.set_visible(False)
@@ -374,7 +375,7 @@ class Game:
             self.handleEvents()
             self.update(renderer, map1)
             m_x, m_y =  pygame.mouse.get_pos()
-            menu = renderer.update(self.inventory, GAME.defines.MOVE_SPEED, self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.cam_anim_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
+            menu = renderer.update(self.points, self.inventory, GAME.defines.MOVE_SPEED, self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.cam_anim_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)
 
             if self.mouse_clicked:
@@ -411,6 +412,8 @@ class Game:
                             self.in_menu = 1
                             self.player_angle = math.pi / 2
                             GAME.defines.MOVE_SPEED = 2
+                            self.points = 0
+                            self.inventory = [None] * GAME.defines.INVENTORY_SIZE
                         case 4:     # Montre les controles
                             self.in_menu = 4
                         case 5:     # Retour (controles)
