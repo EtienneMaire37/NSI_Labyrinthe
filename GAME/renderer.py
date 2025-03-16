@@ -187,7 +187,9 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                                 idx_x = int(u * w)
                                 idx_y = int(v * h)
                                 if tex[idx_x, idx_y, 0] != alpha[0] or tex[idx_x, idx_y, 1] != alpha[1] or tex[idx_x, idx_y, 2] != alpha[2]:
-                                    shade = LIGHT_INTENSITY / distance_to_entity * .3 # Pour les rendre plus sombres
+                                    shade = LIGHT_INTENSITY / distance_to_entity
+                                    if entity['hostile']:
+                                        shade *= .3
                                     zbuffer[ray][y][0] = real_distance_to_entity
                                     buffer[ray][y] = gamma_correct(tonemap_color((tex[idx_x, idx_y, 0] / 255 * shade, 
                                                     tex[idx_x, idx_y, 1] / 255 * shade, 
@@ -318,7 +320,8 @@ class Renderer:
             ('position', numpy.float64, (3,)),
             ('size', numpy.float64, (2,)),
             ('texture', numpy.uint8, (64, 96, 3)),
-            ('alpha', numpy.uint8, (3,))
+            ('alpha', numpy.uint8, (3,)),
+            ('hostile', numpy.uint8, (1,))
         ])
         self.entities = numpy.empty(0, dtype=entity_dtype)
 
@@ -327,17 +330,25 @@ class Renderer:
             ('position', numpy.float64, (3,)),
             ('size', numpy.float64, (2,)),
             ('texture', numpy.uint8, (64, 96, 3)),
-            ('alpha', numpy.uint8, (3,))
+            ('alpha', numpy.uint8, (3,)),
+            ('hostile', numpy.uint8, (1,))
         ])
         self.entities = numpy.empty(0, dtype=entity_dtype)
 
     def add_entity(self, entity: Entity):
+        new_texture = numpy.full((64, 96, 3), entity.alpha_color, dtype=numpy.uint8)
+
+        for i in range(len(entity.texture[0])):
+            for j in range(len(entity.texture)):
+                new_texture[j, i] = entity.texture[j, i]
+    
         new_entity = numpy.array([(
             entity.position,
             entity.size,
-            entity.texture,
+            new_texture,
             entity.alpha_color
         )], dtype=self.entities.dtype)
+
         self.entities = numpy.concatenate((self.entities, new_entity))
 
 
