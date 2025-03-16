@@ -485,6 +485,8 @@ class Renderer:
             4 : Controles
             5 : Retour (controles)
             6 : Vendre objets
+            7 : Sauvegarder
+            8 : Charger une partie
             """
             """
             Menus:
@@ -536,6 +538,23 @@ class Renderer:
                         btn = 6
                     
                     self.print_str(18, 36 + 32, f"Points : {points}", (0, 0, 0))
+
+                    c = 1
+                    if click_btn == 8:
+                        c = .7
+                    c = 1 - c
+                    x, y, max_x, max_y = self.draw_button(18, self.res_y - 19 - 16, "Charger une partie", (c, c, c))
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        btn = 8
+
+                    c = 1
+                    if click_btn == 7:
+                        c = .7
+                    c = 1 - c
+                    x, y, max_x, max_y = self.draw_button(18, self.res_y - 19 - 32, "Sauvegarder", (c, c, c))
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        btn = 7
+
                     return btn
                 case 3:
                     for i in range(self.res_y):

@@ -423,6 +423,28 @@ class Game:
                                 if self.inventory[i] != None:
                                     self.points += self.inventory[i].value
                                     self.inventory[i] = None
+                        case 7:     # Sauvegarder
+                            f = open("SAVES/save.txt", "w")
+                            f.write(str(self.points) + "\n")
+                            for i in range(GAME.defines.INVENTORY_SIZE):
+                                if self.inventory[i] == None:
+                                    f.write("0 0\n")
+                                else:
+                                    f.write(f"{self.inventory[i].tex_id} {self.inventory[i].value}\n")
+                            f.close()
+                        case 8:     # Charger une partie
+                            f = open("SAVES/save.txt", "r") 
+                            text = f.read()
+                            text = text.split('\n')
+                            self.points = int(text[0])
+                            for i in range(GAME.defines.INVENTORY_SIZE):
+                                line = text[i + 1]
+                                if line == "0 0":
+                                    self.inventory[i] = None
+                                else:
+                                    line = line.split(" ")
+                                    self.inventory[i] = Item(int(line[0]), int(line[1]))
+                            f.close()
                         case _:
                             pass
                 self.click_button = 0
