@@ -335,7 +335,7 @@ class Game:
             monster.run_speed = 3
             self.entities.append(monster)
 
-        items = ["RESOURCES/items/sac.png"]
+        items = ["RESOURCES/items/sac.png", "RESOURCES/items/chaudron.png", "RESOURCES/items/coffre.png", "RESOURCES/items/boussole.png", "RESOURCES/items/totem.png", "RESOURCES/items/armure.png"]
         renderer.set_item_textures(items)
 
         for i in range(16):
