@@ -15,8 +15,8 @@ import random
 class Game:
     def __init__(self, _player_x: float, _player_y: float):
         pygame.init()
-        # pygame.mixer.init(channels = 17) # Jusqu'à 17 sons en meme temps
-        pygame.mixer.init(channels = 1)
+        pygame.mixer.init(channels = 19) # Jusqu'à 19 sons en meme temps
+        # pygame.mixer.init()
 
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION])
         # pygame.mouse.set_visible(False)
@@ -237,21 +237,22 @@ class Game:
                         if self.entities[i].walk_sound_timer > threshold:
                             self.entities[i].walk_sound_timer = 0
                             # print("ws")
-                            rvol = 1 / (.7 * distance_to_entity)**2 # math.log10(10 / (distance_to_entity * .3)**2)
+                            rvol = 1 / (.4 * distance_to_entity)**2 # math.log10(10 / (distance_to_entity * .3)**2)
                             vol = min(1, max(0, rvol))
-                            self.entities[i].walk_sound.set_volume(vol)
                             # print(max(0, -2 * math.log10(.3 * distance_to_entity / math.sqrt(10))))
-                            if vol > .03:
+                            if vol > .04:
+                                self.entities[i].walk_sound.set_volume(vol)
                                 self.entities[i].walk_sound.play()
                         # self.entities[i] = entity
                     else:
                         if distance_to_entity < 0.4:
                             j = 0
-                            while self.inventory[j] != None and j < GAME.defines.INVENTORY_SIZE:
+                            while self.inventory[j] != None and j < GAME.defines.INVENTORY_SIZE - 1:
                                 j += 1
                             if self.inventory[j] == None:
                                 self.inventory[j] = self.entities[i].item
-                            self.delete_entity(renderer, i)
+                                self.delete_entity(renderer, i)
+                                renderer.delete_entity(i)
                             i -= 1
                     i += 1
 
@@ -340,10 +341,16 @@ class Game:
         items = ["RESOURCES/items/sac.png", "RESOURCES/items/chaudron.png", "RESOURCES/items/coffre.png", "RESOURCES/items/boussole.png", "RESOURCES/items/totem.png", "RESOURCES/items/armure.png"]
         renderer.set_item_textures(items)
 
+        item_pos = []
         for i in range(16):
-            pos_x, pos_y = self.generate_entity_pos(map, 10)
+            if len(item_pos) == 0:
+                pos_x, pos_y = self.generate_entity_pos(map, 8)
+            else:
+                while (pos_x, pos_y) in item_pos:
+                    pos_x, pos_y = self.generate_entity_pos(map, 8)
+            item_pos.append((pos_x, pos_y))
             tex_id = random.randint(0, len(items) - 1)
-            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .7, items[tex_id], (0, 0, 0), "", False, tex_id, tex_id * 10 + random.randint(2, 8))
+            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .6, items[tex_id], (0, 0, 0), "", False, tex_id, tex_id * 10 + random.randint(2, 8))
             renderer.add_entity(item)
             self.entities.append(item)
 
