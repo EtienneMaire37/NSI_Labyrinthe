@@ -39,7 +39,6 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                  player_angle: float, _map_data: list, _map_size: tuple, _map_textures: list,
                  _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int,
                  entities: numpy.ndarray, RESOLUTION_X: int, RESOLUTION_Y: int):
-
     HALF_FOV = FOV / 2
     # HALF_RES_X = RESOLUTION_X // 2
     HALF_RES_Y = RESOLUTION_Y // 2
