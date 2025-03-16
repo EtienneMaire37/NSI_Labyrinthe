@@ -484,6 +484,7 @@ class Renderer:
             3 : Rejouer
             4 : Controles
             5 : Retour (controles)
+            6 : Vendre objets
             """
             """
             Menus:
@@ -526,7 +527,15 @@ class Renderer:
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         btn = 2
                     
-                    self.print_str(18, 36 + 16, f"Points : {points}", (0, 0, 0))
+                    c = 1
+                    if click_btn == 6:
+                        c = .7
+                    c = 1 - c
+                    x, y, max_x, max_y = self.draw_button(18, 36 + 16, "Vendre ses objets", (c, c, c))
+                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                        btn = 6
+                    
+                    self.print_str(18, 36 + 32, f"Points : {points}", (0, 0, 0))
                     return btn
                 case 3:
                     for i in range(self.res_y):

@@ -418,6 +418,11 @@ class Game:
                             self.in_menu = 4
                         case 5:     # Retour (controles)
                             self.in_menu = 1
+                        case 6:     # Vendre objets
+                            for i in range(GAME.defines.INVENTORY_SIZE):
+                                if self.inventory[i] != None:
+                                    self.points += self.inventory[i].value
+                                    self.inventory[i] = None
                         case _:
                             pass
                 self.click_button = 0
