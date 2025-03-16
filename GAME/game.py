@@ -193,7 +193,7 @@ class Game:
             if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y += math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
 
-    def update(self, _map: mp.Map):
+    def update(self, renderer, _map: mp.Map):
         deltaTime = self.clock.tick(GAME.defines.MAX_FRAME_RATE) / 1000
         # print(deltaTime)
 
@@ -213,7 +213,9 @@ class Game:
                     self.step_sound[random.randint(0, 3)].play()
                     
                 # for entity in self.entities:
-                for i in range(len(self.entities)):
+                i = 0
+                while i < len(self.entities):
+                # for i in range(len(self.entities)):
                     # self.update_entity_ai(entity, _map, deltaTime)
                     # entity = self.entities[i]
                     distance_to_entity = math.sqrt((self.player_x - self.entities[i].position[0])**2 + (self.player_y - self.entities[i].position[1])**2)
@@ -240,6 +242,11 @@ class Game:
                             if vol > .03:
                                 self.entities[i].walk_sound.play()
                         # self.entities[i] = entity
+                    else:
+                        if distance_to_entity < 0.4:
+                            self.delete_entity(renderer, i)
+                            i -= 1
+                    i += 1
 
         pygame.display.set_caption(GAME.defines.GAME_TITLE + f" | FPS: {int(1 / deltaTime)}")
 
@@ -357,7 +364,7 @@ class Game:
 
         while True:
             self.handleEvents()
-            self.update(map1)
+            self.update(renderer, map1)
             m_x, m_y =  pygame.mouse.get_pos()
             menu = renderer.update(self.inventory, GAME.defines.MOVE_SPEED, self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.cam_anim_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)
@@ -391,9 +398,9 @@ class Game:
                                                 ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
                             renderer.clean_entities()
                             self.entities = []
+                            self.player_x, self.player_y = (GAME.defines.MAP1_SIZE_X / 2, GAME.defines.MAP1_SIZE_Y / 2 + 1)
                             self.generate_entities(renderer, map1)
                             self.in_menu = 1
-                            self.player_x, self.player_y = (GAME.defines.MAP1_SIZE_X / 2, GAME.defines.MAP1_SIZE_Y / 2 + 1)
                             self.player_angle = math.pi / 2
                             GAME.defines.MOVE_SPEED = 2
                         case 4:     # Montre les controles

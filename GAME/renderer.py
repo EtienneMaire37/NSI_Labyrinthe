@@ -7,6 +7,8 @@ import GAME.map as mp
 from GAME.math import normalize_vector2d, dot_2d, dot_3d, lerp
 from GAME.rays import cast_ray
 from GAME.entity import Entity
+import pygame
+import os
 
 # # Implémente la formule de tonemapping de Reinhard 
 # @njit(fastmath = True, cache = True)
@@ -324,6 +326,7 @@ class Renderer:
             ('hostile', numpy.uint8, (1,))
         ])
         self.entities = numpy.empty(0, dtype=entity_dtype)
+        self.item_textures = []
 
     def clean_entities(self):
         entity_dtype = numpy.dtype([
@@ -407,6 +410,10 @@ class Renderer:
 
     def delete_entity(self, index):
         numpy.delete(self.entities, index)
+
+    def set_item_textures(self, textures_list: list):
+        for path in textures_list:
+            self.item_textures.append(pygame.surfarray.array3d(pygame.image.load(os.path.abspath(path))).astype(numpy.uint8))
 
     def update(self, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:
