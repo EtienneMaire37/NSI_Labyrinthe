@@ -420,12 +420,10 @@ class Renderer:
                 screen_x = int(beacon_pixel * (self.res_x - 4) + 2)
                 if 2 <= screen_x < self.res_x - 2:
                     c = (.3, .4, 1)
-                    self.buffer[screen_x - 1][self.res_y - 2] = c
-                    self.buffer[screen_x][self.res_y - 2] = c
-                    self.buffer[screen_x + 1][self.res_y - 2] = c
-
-            # print(angle_to_beacon)
-            # print(rel_angle_to_beacon)
+                    for i in range(-1, 2):
+                        self.buffer[screen_x - 1][self.res_y - 2 + i] = c
+                        self.buffer[screen_x][self.res_y - 2 + i] = c
+                        self.buffer[screen_x + 1][self.res_y - 2 + i] = c
             
             self.invert_pixel(HALF_RES_X, HALF_RES_Y)
 
