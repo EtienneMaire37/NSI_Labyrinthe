@@ -244,6 +244,11 @@ class Game:
                         # self.entities[i] = entity
                     else:
                         if distance_to_entity < 0.4:
+                            j = 0
+                            while self.inventory[j] != None and j < GAME.defines.INVENTORY_SIZE:
+                                if self.inventory[j] == None:
+                                    self.inventory[j] = self.entities[i].item
+                                j += 1
                             self.delete_entity(renderer, i)
                             i -= 1
                     i += 1

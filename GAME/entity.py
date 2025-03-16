@@ -4,9 +4,10 @@ import os
 import random 
 import math
 from GAME.defines import ENTITY_WALK_SOUND_SPEED
+from GAME.item import Item
 
 class Entity:
-    def __init__(self, pos_x: float, pos_y: float, pos_z: float, size_x: float, size_y: float, tex_file: str, alpha: tuple, walk_sound: str, hostile: bool):
+    def __init__(self, pos_x: float, pos_y: float, pos_z: float, size_x: float, size_y: float, tex_file: str, alpha: tuple, walk_sound: str, hostile: bool, item_id: int = 0, item_value: int = 0):
         self.position = (pos_x, pos_y, pos_z)
         self.size = (size_x, size_y)
         tex = pygame.image.load(os.path.abspath(tex_file))
@@ -27,3 +28,5 @@ class Entity:
             self.hearing_radius = 3.0
             self.speed = 2.5
             self.run_speed = 3.5
+        else:
+            self.item = Item(item_id, item_value)
