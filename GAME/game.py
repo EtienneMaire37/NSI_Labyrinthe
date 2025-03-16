@@ -342,7 +342,7 @@ class Game:
         for i in range(16):
             pos_x, pos_y = self.generate_entity_pos(map, 10)
             tex_id = random.randint(0, len(items) - 1)
-            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .7, items[tex_id], (0, 0, 0), "", False, tex_id, tex_id * 10 + random.randint(0, 6))
+            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .7, items[tex_id], (0, 0, 0), "", False, tex_id, tex_id * 10 + random.randint(2, 8))
             renderer.add_entity(item)
             self.entities.append(item)
 

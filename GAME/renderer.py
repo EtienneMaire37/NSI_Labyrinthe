@@ -423,7 +423,8 @@ class Renderer:
         for i in range(sz_y):
             for j in range(sz_x):
                 c = tex[int(j * tex_width / sz_x), int(i * tex_height / sz_y)]
-                self.buffer[j + x, i + y] = (c[0] / 255, c[1] / 255, c[2] / 255)
+                if not (c[0] == c[1] == c[2] == 0):
+                    self.buffer[j + x, i + y] = (c[0] / 255, c[1] / 255, c[2] / 255)
 
     def update(self, points: int, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:
@@ -492,11 +493,11 @@ class Renderer:
             4 : Controles
             5 : Inventaire
             """
+            btn = 0
             match in_menu:
                 case 1:
                     self.dim_screen()
                     self.print_str(18, 18, "Menu principal", (1, 1, 1))
-                    btn = 0
                     c = 1
                     if click_btn == 1:
                         c = .7
@@ -523,9 +524,10 @@ class Renderer:
                     c = 1 - c
                     x, y, max_x, max_y = self.draw_button(18, 36, "Recharger la map", (c, c, c))
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        return 2
+                        btn = 2
                     
                     self.print_str(18, 36 + 16, f"Points : {points}", (0, 0, 0))
+                    return btn
                 case 3:
                     for i in range(self.res_y):
                         for j in range(self.res_x):
@@ -552,15 +554,23 @@ class Renderer:
                     self.dim_screen()
                     self.draw_menu_frame()
                     self.print_str(18, 18, "Inventaire", (0, 0, 0))
+                    show_pts, pts, pts_x, pts_y = False, 0, 0, 0
                     for i in range(8):
                         for j in range(8):
+                            x_left, x_right = j * 17 + 21, j * 17 + 37
+                            y_top, y_bottom = i * 17 + 35, i * 17 + 18 + 32
                             index = j + 8 * i
                             if inventory[index] == None:
                                 c = (.7, .7, .7)
                             else:
                                 c = (.7, .3, .3)
-                                self.draw_texture(j * 17 + 22, i * 17 + 35, 14, 14, inventory[index].tex_id)
-                            self.draw_rectangle_outline(j * 17 + 21, i * 17 + 18 + 16, j * 17 + 37, i * 17 + 18 + 32, c)
+                                self.draw_texture(x_left + 1, y_top + 1, 13, 13, inventory[index].tex_id)
+                            self.draw_rectangle_outline(x_left, y_top, x_right, y_bottom, c)
+                            if inventory[index] != None:
+                                if mouse_x >= x_left and mouse_x < x_right and mouse_y >= y_top and mouse_y < y_bottom:
+                                    show_pts, pts, pts_x, pts_y = True, inventory[index].value, mouse_x, mouse_y
+                    if show_pts:
+                        self.print_str(pts_x, pts_y, f"Points : {pts}", (0, 0, 0))
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0
