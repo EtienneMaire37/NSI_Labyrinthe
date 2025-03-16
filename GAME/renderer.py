@@ -2,7 +2,7 @@ import sys
 import math
 import numpy
 from numba import njit, prange
-from GAME.defines import WALL_LOW, WALL_HIGH, LIGHT_INTENSITY, LIGHT_OFFSET, MAX_PLAYER_INTERACTION_RANGE, FOV, MENU_OUTLINE, MENU_OUTLINE2
+from GAME.defines import WALL_LOW, WALL_HIGH, LIGHT_INTENSITY, LIGHT_OFFSET, MAX_PLAYER_INTERACTION_RANGE, FOV, MENU_OUTLINE, MENU_OUTLINE2, HALF_FOV
 import GAME.map as mp
 from GAME.math import normalize_vector2d, dot_2d, dot_3d, lerp
 from GAME.rays import cast_ray
@@ -39,7 +39,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                  player_angle: float, _map_data: list, _map_size: tuple, _map_textures: list,
                  _map_textures_sizes: list, _map_floor_tex_idx: int, _map_ceil_tex_idx: int,
                  entities: numpy.ndarray, RESOLUTION_X: int, RESOLUTION_Y: int):
-    HALF_FOV = FOV / 2
+    # HALF_FOV = FOV / 2
     # HALF_RES_X = RESOLUTION_X // 2
     HALF_RES_Y = RESOLUTION_Y // 2
     for ray in prange(RESOLUTION_X):
@@ -402,6 +402,30 @@ class Renderer:
         if in_menu == 0:
             HALF_RES_X = self.res_x // 2
             HALF_RES_Y = self.res_y // 2
+
+            beacon_pos = (_map.size[0] // 2 + 1.5, _map.size[1] // 2 + 1.5)
+            delta_x = beacon_pos[0] - player_x
+            delta_y = beacon_pos[1] - player_y
+
+            angle_to_beacon = math.atan2(delta_x, delta_y)
+
+            rel_angle_to_beacon = -((angle_to_beacon + player_angle + math.pi) % (2 * math.pi) - math.pi)
+
+            beacon_pixel = rel_angle_to_beacon / FOV + 0.5
+
+            for i in range(2, self.res_x - 2):
+                self.buffer[i][self.res_y - 2] = (.8, .8, .8)
+
+            if 0 <= beacon_pixel < 1:
+                screen_x = int(beacon_pixel * (self.res_x - 4) + 2)
+                if 2 <= screen_x < self.res_x - 2:
+                    c = (.3, .4, 1)
+                    self.buffer[screen_x - 1][self.res_y - 2] = c
+                    self.buffer[screen_x][self.res_y - 2] = c
+                    self.buffer[screen_x + 1][self.res_y - 2] = c
+
+            # print(angle_to_beacon)
+            # print(rel_angle_to_beacon)
             
             self.invert_pixel(HALF_RES_X, HALF_RES_Y)
 

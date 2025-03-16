@@ -212,7 +212,7 @@ class Game:
                     if self.entities[i].walk_sound_timer > threshold:
                         self.entities[i].walk_sound_timer = 0
                         # print("ws")
-                        rvol = 1 / (.7 * distance_to_entity)**2# math.log10(10 / (distance_to_entity * .3)**2)
+                        rvol = 1 / (.7 * distance_to_entity)**2 # math.log10(10 / (distance_to_entity * .3)**2)
                         vol = min(1, max(0, rvol))
                         self.entities[i].walk_sound.set_volume(vol)
                         # print(max(0, -2 * math.log10(.3 * distance_to_entity / math.sqrt(10))))
