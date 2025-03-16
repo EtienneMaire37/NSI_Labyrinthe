@@ -9,6 +9,7 @@ from GAME.rays import cast_ray
 from GAME.entity import Entity
 import pygame
 import os
+from GAME.item import Item
 
 # # Implémente la formule de tonemapping de Reinhard 
 # @njit(fastmath = True, cache = True)
@@ -415,6 +416,15 @@ class Renderer:
         for path in textures_list:
             self.item_textures.append(pygame.surfarray.array3d(pygame.image.load(os.path.abspath(path))).astype(numpy.uint8))
 
+    def draw_texture(self, x, y, sz_x, sz_y, id):
+        tex = self.item_textures[id]
+        tex_width = len(tex)
+        tex_height = len(tex[0])
+        for i in range(sz_y):
+            for j in range(sz_x):
+                c = tex[int(j * tex_width / sz_x), int(i * tex_height / sz_y)]
+                self.buffer[j + x, i + y] = (c[0] / 255, c[1] / 255, c[2] / 255)
+
     def update(self, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:
             anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
@@ -547,6 +557,7 @@ class Renderer:
                                 c = (.7, .7, .7)
                             else:
                                 c = (.7, .3, .3)
+                                self.draw_texture(j * 17 + 22, i * 17 + 35, 14, 14, inventory[index].tex_id)
                             self.draw_rectangle_outline(j * 17 + 21, i * 17 + 18 + 16, j * 17 + 37, i * 17 + 18 + 32, c)
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
