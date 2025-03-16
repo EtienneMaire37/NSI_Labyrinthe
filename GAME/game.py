@@ -216,7 +216,7 @@ class Game:
                         vol = min(1, max(0, rvol))
                         self.entities[i].walk_sound.set_volume(vol)
                         # print(max(0, -2 * math.log10(.3 * distance_to_entity / math.sqrt(10))))
-                        if vol > .01:
+                        if vol > .03:
                             self.entities[i].walk_sound.play()
                     # self.entities[i] = entity
 
@@ -278,13 +278,17 @@ class Game:
                 if _map._map[int(entity.position[1]) * _map.size[0] + int(new_x)] == 0:
                     entity.position = (new_x, entity.position[1], entity.position[2])
 
+    def generate_entity_pos(self, map):
+        pos_x = pos_y = 0
+        while map._map[int(pos_x) + map.size[0] * int(pos_y)] != 0 or math.sqrt((pos_x - self.player_x)**2 + (pos_y - self.player_y)**2) < 20 or (pos_x == 0 and pos_y == 0):
+            pos_x = random.randint(0, map.size[0] - 1)
+            pos_y = random.randint(0, map.size[1] - 1)
+        return pos_x, pos_y
+
     # Génère les entités dans le labyrinthe
     def generate_entities(self, renderer, map):
         for i in range(64):
-            pos_x = pos_y = 0
-            while map._map[int(pos_x) + map.size[0] * int(pos_y)] != 0 or math.sqrt((pos_x - self.player_x)**2 + (pos_y - self.player_y)**2) < 20 or (pos_x == 0 and pos_y == 0):
-                pos_x = random.randint(0, map.size[0] - 1)
-                pos_y = random.randint(0, map.size[1] - 1)
+            pos_x, pos_y = self.generate_entity_pos(map)
             # print(pos_x - self.player_x, pos_y - self.player_y)
             monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255), "RESOURCES/sounds/monster-walk.mp3")
             renderer.add_entity(monster)
