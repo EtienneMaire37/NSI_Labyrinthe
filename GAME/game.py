@@ -288,7 +288,7 @@ class Game:
 
     # Génère les entités dans le labyrinthe
     def generate_entities(self, renderer, map):
-        for i in range(64):
+        for i in range(16):
             pos_x, pos_y = self.generate_entity_pos(map, 20)
             # print(pos_x - self.player_x, pos_y - self.player_y)
             monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255), "RESOURCES/sounds/monster-walk.mp3", True)
@@ -297,11 +297,13 @@ class Game:
             monster.hearing_radius = 4.
             # monster.speed = 3
             # monster.run_speed = 4.7
+            # monster.speed = 2.5
+            # monster.run_speed = 4 # 3.8
             monster.speed = 2.5
-            monster.run_speed = 4 # 3.8
+            monster.run_speed = 3
             self.entities.append(monster)
 
-        for i in range(128):
+        for i in range(16):
             pos_x, pos_y = self.generate_entity_pos(map, 10)
             items = ["RESOURCES/items/sac.png"]
             item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .7, items[random.randint(0, 0)], (0, 0, 0), "", False)
