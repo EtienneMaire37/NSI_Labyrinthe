@@ -1,4 +1,5 @@
 from GAME.file import File
+from GAME.defines import MAX_ASTAR_ITERATION
 
 class Node:
     def __init__(self, position, parent=None):
@@ -19,7 +20,7 @@ def a_star(start, end, map_data, map_size):
     open_list.enfiler(start_node)
     
     best_g = {start: 0}
-    max_iterations = (map_size[0] * map_size[1]) * 2
+    max_iterations = MAX_ASTAR_ITERATION
     
     iteration_count = 0
     

@@ -326,8 +326,8 @@ class Game:
             # print(pos_x - self.player_x, pos_y - self.player_y)
             monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255), "RESOURCES/sounds/monster-walk.mp3", True)
             renderer.add_entity(monster)
-            monster.detection_radius = 7.
-            monster.hearing_radius = 4.
+            monster.detection_radius = 12.
+            monster.hearing_radius = 3.5
             # monster.speed = 3
             # monster.run_speed = 4.7
             # monster.speed = 2.5
