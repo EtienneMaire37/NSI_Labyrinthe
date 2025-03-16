@@ -300,6 +300,11 @@ class Game:
             monster.speed = 2.5
             monster.run_speed = 4 # 3.8
             self.entities.append(monster)
+        # self.delete_entity(renderer, 0)
+
+    def delete_entity(self, renderer, index):
+        self.entities.pop(index)
+        renderer.delete_entity(index)
 
     # Lance le jeu
     def run(self):

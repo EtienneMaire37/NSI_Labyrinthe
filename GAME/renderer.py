@@ -392,6 +392,10 @@ class Renderer:
                 for j in range(self.res_x):
                     for k in range(3):
                         self.buffer[j][i][k] *= .5
+
+    def delete_entity(self, index):
+        numpy.delete(self.entities, index)
+
     def update(self, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:
             anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
