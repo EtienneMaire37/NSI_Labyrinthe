@@ -1,5 +1,4 @@
 from GAME.file import File
-import heapq  # Add this import
 
 class Node:
     def __init__(self, position, parent=None):
@@ -13,17 +12,24 @@ class Node:
         return self.f < other.f
 
 def a_star(start, end, map_data, map_size):
-    open_list = []
+    open_list = File()
     closed_set = set()
     
     start_node = Node(start)
-    heapq.heappush(open_list, start_node)
+    open_list.enfiler(start_node)
     
     best_g = {start: 0}
+    max_iterations = (map_size[0] * map_size[1]) * 2
     
-    while open_list:
-        current_node = heapq.heappop(open_list)
+    iteration_count = 0
+    
+    while not open_list.est_vide() and iteration_count < max_iterations:
+        iteration_count += 1
+        current_node = open_list.defiler()
         
+        if current_node.g > best_g.get(current_node.position, float('inf')):
+            continue
+            
         if current_node.position == end:
             path = []
             while current_node is not None:
@@ -31,9 +37,6 @@ def a_star(start, end, map_data, map_size):
                 current_node = current_node.parent
             return path[::-1]
         
-        if current_node.position in closed_set:
-            continue
-            
         closed_set.add(current_node.position)
         
         for dx, dy in [(-1,0), (1,0), (0,-1), (0,1)]:
@@ -47,15 +50,23 @@ def a_star(start, end, map_data, map_size):
                 neighbor_pos = (x, y)
                 tentative_g = current_node.g + 1
                 
-                if neighbor_pos in closed_set and tentative_g >= best_g.get(neighbor_pos, float('inf')):
+                if tentative_g >= best_g.get(neighbor_pos, float('inf')):
                     continue
-
-                if tentative_g < best_g.get(neighbor_pos, float('inf')):
-                    best_g[neighbor_pos] = tentative_g
-                    neighbor_node = Node(neighbor_pos, current_node)
-                    neighbor_node.g = tentative_g
-                    neighbor_node.h = abs(x - end[0]) + abs(y - end[1])
-                    neighbor_node.f = neighbor_node.g + neighbor_node.h
-                    heapq.heappush(open_list, neighbor_node)
+                
+                best_g[neighbor_pos] = tentative_g
+                
+                neighbor_node = Node(neighbor_pos, current_node)
+                neighbor_node.g = tentative_g
+                neighbor_node.h = abs(x - end[0]) + abs(y - end[1])
+                neighbor_node.f = neighbor_node.g + neighbor_node.h
+                
+                in_open = False
+                for n in open_list.contenu:
+                    if n.position == neighbor_pos and n.f <= neighbor_node.f:
+                        in_open = True
+                        break
+                
+                if not in_open:
+                    open_list.enfiler(neighbor_node)
     
     return []
