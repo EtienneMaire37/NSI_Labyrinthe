@@ -188,7 +188,7 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
                                 idx_y = int(v * h)
                                 if tex[idx_x, idx_y, 0] != alpha[0] or tex[idx_x, idx_y, 1] != alpha[1] or tex[idx_x, idx_y, 2] != alpha[2]:
                                     shade = LIGHT_INTENSITY / distance_to_entity
-                                    if entity['hostile']:
+                                    if entity['hostile'][0]:
                                         shade *= .3
                                     zbuffer[ray][y][0] = real_distance_to_entity
                                     buffer[ray][y] = gamma_correct(tonemap_color((tex[idx_x, idx_y, 0] / 255 * shade, 
@@ -346,7 +346,8 @@ class Renderer:
             entity.position,
             entity.size,
             new_texture,
-            entity.alpha_color
+            entity.alpha_color,
+            (entity.hostile)
         )], dtype=self.entities.dtype)
 
         self.entities = numpy.concatenate((self.entities, new_entity))

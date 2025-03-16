@@ -304,7 +304,7 @@ class Game:
         for i in range(128):
             pos_x, pos_y = self.generate_entity_pos(map, 10)
             items = ["RESOURCES/items/sac.png"]
-            item = Entity(pos_x, pos_y, self.player_z - .5, .3, .7, items[random.randint(0, 0)], (0, 0, 0), "", False)
+            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .7, items[random.randint(0, 0)], (0, 0, 0), "", False)
             renderer.add_entity(item)
             self.entities.append(item)
 
