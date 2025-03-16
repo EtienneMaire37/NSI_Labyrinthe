@@ -540,6 +540,14 @@ class Renderer:
                     self.dim_screen()
                     self.draw_menu_frame()
                     self.print_str(18, 18, "Inventaire", (0, 0, 0))
+                    for i in range(8):
+                        for j in range(8):
+                            index = j + 8 * i
+                            if inventory[index] == None:
+                                c = (.7, .7, .7)
+                            else:
+                                c = (.7, .3, .3)
+                            self.draw_rectangle_outline(j * 17 + 21, i * 17 + 18 + 16, j * 17 + 37, i * 17 + 18 + 32, c)
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0
