@@ -202,6 +202,7 @@ class Game:
                         pygame.mouse.set_visible(True)
                         pygame.event.set_grab(False)
                         self.jumpscare_sound[random.randint(0, 1)].play()
+
                     self.follow_path(self.entities[i], deltaTime, _map)
                     self.entities[i].walk_sound_timer += deltaTime
                     if self.entities[i].ai_state == "patrol":
@@ -287,7 +288,8 @@ class Game:
             # print(pos_x - self.player_x, pos_y - self.player_y)
             monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255), "RESOURCES/sounds/monster-walk.mp3")
             renderer.add_entity(monster)
-            monster.detection_radius = 7.0
+            monster.detection_radius = 7.
+            monster.hearing_radius = 4.
             # monster.speed = 3
             # monster.run_speed = 4.7
             monster.speed = 2.5
@@ -386,7 +388,7 @@ class Game:
                     if has_los or distance < entity.hearing_radius:
                         if len(entity.path) != 0:
                             next_tile = entity.path[0]
-                            entity.path = [next_tile] + a_star((pos_x, pos_y), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                            entity.path = [next_tile] + a_star((next_tile[0], next_tile[1]), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
                         else:
                             entity.path = a_star((pos_x, pos_y), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
                     else:
@@ -396,13 +398,11 @@ class Game:
                     if has_los or distance < entity.hearing_radius:
                         entity.ai_state = "chase"
                     else:
-                        if len(entity.path) != 0:
-                            next_tile = entity.path[0]
-                        else:
+                        if len(entity.path) == 0:
                             next_tile = (int(entity.position[0] - .5), int(entity.position[1] - .5))
-                        new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
-                        while map1._map[int(new_next_tile[0]) + int(new_next_tile[1]) * map1.size[0]] != 0:
                             new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
-                        entity.path = [next_tile] + [new_next_tile]
+                            while map1._map[int(new_next_tile[0]) + int(new_next_tile[1]) * map1.size[0]] != 0:
+                                new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
+                            entity.path = [next_tile] + [new_next_tile]
 
                 self.entities[i].position = (self.entities[i].position[0] - .5, self.entities[i].position[1] - .5, self.entities[i].position[2])
