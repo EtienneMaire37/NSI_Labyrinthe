@@ -197,28 +197,29 @@ class Game:
                     # self.update_entity_ai(entity, _map, deltaTime)
                     # entity = self.entities[i]
                     distance_to_entity = math.sqrt((self.player_x - self.entities[i].position[0])**2 + (self.player_y - self.entities[i].position[1])**2)
-                    if distance_to_entity < .55:
-                        self.in_menu = 3    # Game over
-                        pygame.mouse.set_visible(True)
-                        pygame.event.set_grab(False)
-                        self.jumpscare_sound[random.randint(0, 1)].play()
+                    if self.entities[i].hostile:
+                        if distance_to_entity < 0.7075: # ~= sqrt(2) / 2
+                            self.in_menu = 3    # Game over
+                            pygame.mouse.set_visible(True)
+                            pygame.event.set_grab(False)
+                            self.jumpscare_sound[random.randint(0, 1)].play()
 
-                    self.follow_path(self.entities[i], deltaTime, _map)
-                    self.entities[i].walk_sound_timer += deltaTime
-                    if self.entities[i].ai_state == "patrol":
-                        threshold = GAME.defines.ENTITY_WALK_SOUND_SPEED
-                    else:
-                        threshold = GAME.defines.ENTITY_RUN_SOUND_SPEED
-                    if self.entities[i].walk_sound_timer > threshold:
-                        self.entities[i].walk_sound_timer = 0
-                        # print("ws")
-                        rvol = 1 / (.7 * distance_to_entity)**2 # math.log10(10 / (distance_to_entity * .3)**2)
-                        vol = min(1, max(0, rvol))
-                        self.entities[i].walk_sound.set_volume(vol)
-                        # print(max(0, -2 * math.log10(.3 * distance_to_entity / math.sqrt(10))))
-                        if vol > .03:
-                            self.entities[i].walk_sound.play()
-                    # self.entities[i] = entity
+                        self.follow_path(self.entities[i], deltaTime, _map)
+                        self.entities[i].walk_sound_timer += deltaTime
+                        if self.entities[i].ai_state == "patrol":
+                            threshold = GAME.defines.ENTITY_WALK_SOUND_SPEED
+                        else:
+                            threshold = GAME.defines.ENTITY_RUN_SOUND_SPEED
+                        if self.entities[i].walk_sound_timer > threshold:
+                            self.entities[i].walk_sound_timer = 0
+                            # print("ws")
+                            rvol = 1 / (.7 * distance_to_entity)**2 # math.log10(10 / (distance_to_entity * .3)**2)
+                            vol = min(1, max(0, rvol))
+                            self.entities[i].walk_sound.set_volume(vol)
+                            # print(max(0, -2 * math.log10(.3 * distance_to_entity / math.sqrt(10))))
+                            if vol > .03:
+                                self.entities[i].walk_sound.play()
+                        # self.entities[i] = entity
 
         pygame.display.set_caption(GAME.defines.GAME_TITLE + f" | FPS: {int(1 / deltaTime)}")
 
@@ -290,7 +291,7 @@ class Game:
         for i in range(64):
             pos_x, pos_y = self.generate_entity_pos(map)
             # print(pos_x - self.player_x, pos_y - self.player_y)
-            monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255), "RESOURCES/sounds/monster-walk.mp3")
+            monster = Entity(pos_x, pos_y, self.player_z, 1, 1, f"RESOURCES/monsters/no-bg{random.randint(0, 2)}.png", (255, 255, 255), "RESOURCES/sounds/monster-walk.mp3", True)
             renderer.add_entity(monster)
             monster.detection_radius = 7.
             monster.hearing_radius = 4.
@@ -370,43 +371,44 @@ class Game:
                             pass
                 self.click_button = 0
             for i in range(min(len(renderer.entities), len(self.entities))):
-                # renderer.entities[i] = self.entities[i]
                 renderer.entities[i]['position'] = self.entities[i].position
-                self.entities[i].position = (self.entities[i].position[0] + .5, self.entities[i].position[1] + .5, self.entities[i].position[2])
-                # print(renderer.entities[i]['position'])
+                if self.entities[i].hostile:
+                    # renderer.entities[i] = self.entities[i]
+                    self.entities[i].position = (self.entities[i].position[0] + .5, self.entities[i].position[1] + .5, self.entities[i].position[2])
+                    # print(renderer.entities[i]['position'])
 
-                entity = self.entities[i]
-                distance = math.sqrt((entity.position[0] - self.player_x)**2 + (entity.position[1] - self.player_y)**2)
-                has_los = False
-                if distance < entity.detection_radius:
-                    dx = self.player_x - entity.position[0]
-                    dy = self.player_y - entity.position[1]
-                    if dx == 0:
-                        dx = 0.01
-                    if dy == 0:
-                        dy = 0.01
-                    dist, hit, _, _, _, _, _ = cast_ray(dx, dy, entity.position[0], entity.position[1], 0, map1._map, map1.size)
-                    has_los = dist >= distance - 1
-                pos_x, pos_y = (int(entity.position[0] - .5), int(entity.position[1] - .5))
-                if entity.ai_state == "chase":
-                    if has_los or distance < entity.hearing_radius:
-                        if len(entity.path) != 0:
-                            next_tile = entity.path[0]
-                            entity.path = [next_tile] + a_star((next_tile[0], next_tile[1]), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                    entity = self.entities[i]
+                    distance = math.sqrt((entity.position[0] - self.player_x)**2 + (entity.position[1] - self.player_y)**2)
+                    has_los = False
+                    if distance < entity.detection_radius:
+                        dx = self.player_x - entity.position[0]
+                        dy = self.player_y - entity.position[1]
+                        if dx == 0:
+                            dx = 0.01
+                        if dy == 0:
+                            dy = 0.01
+                        dist, hit, _, _, _, _, _ = cast_ray(dx, dy, entity.position[0], entity.position[1], 0, map1._map, map1.size)
+                        has_los = dist >= distance - 1
+                    pos_x, pos_y = (int(entity.position[0] - .5), int(entity.position[1] - .5))
+                    if entity.ai_state == "chase":
+                        if has_los or distance < entity.hearing_radius:
+                            if len(entity.path) != 0:
+                                next_tile = entity.path[0]
+                                entity.path = [next_tile] + a_star((next_tile[0], next_tile[1]), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                            else:
+                                entity.path = a_star((pos_x, pos_y), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
                         else:
-                            entity.path = a_star((pos_x, pos_y), (int(self.player_x), int(self.player_y)), map1._map, map1.size)
+                            if len(entity.path) <= 1:
+                                entity.ai_state = "patrol"
                     else:
-                        if len(entity.path) <= 1:
-                            entity.ai_state = "patrol"
-                else:
-                    if has_los or distance < entity.hearing_radius:
-                        entity.ai_state = "chase"
-                    else:
-                        if len(entity.path) == 0:
-                            next_tile = (int(entity.position[0] - .5), int(entity.position[1] - .5))
-                            new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
-                            while map1._map[int(new_next_tile[0]) + int(new_next_tile[1]) * map1.size[0]] != 0:
+                        if has_los or distance < entity.hearing_radius:
+                            entity.ai_state = "chase"
+                        else:
+                            if len(entity.path) == 0:
+                                next_tile = (int(entity.position[0] - .5), int(entity.position[1] - .5))
                                 new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
-                            entity.path = [next_tile] + [new_next_tile]
+                                while map1._map[int(new_next_tile[0]) + int(new_next_tile[1]) * map1.size[0]] != 0:
+                                    new_next_tile = (next_tile[0] + random.randint(-1, 1), next_tile[1] + random.randint(-1, 1))
+                                entity.path = [next_tile] + [new_next_tile]
 
-                self.entities[i].position = (self.entities[i].position[0] - .5, self.entities[i].position[1] - .5, self.entities[i].position[2])
+                    self.entities[i].position = (self.entities[i].position[0] - .5, self.entities[i].position[1] - .5, self.entities[i].position[2])
