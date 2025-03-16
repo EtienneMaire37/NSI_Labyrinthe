@@ -408,7 +408,7 @@ class Renderer:
     def delete_entity(self, index):
         numpy.delete(self.entities, index)
 
-    def update(self, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
+    def update(self, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:
             anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
 
@@ -465,6 +465,7 @@ class Renderer:
             2 : Recharger la map
             3 : Rejouer
             4 : Controles
+            5 : Retour (controles)
             """
             """
             Menus:
@@ -472,7 +473,7 @@ class Renderer:
             2 : Terminal
             3 : Game over
             4 : Controles
-            5 : Retour (controles)
+            5 : Inventaire
             """
             match in_menu:
                 case 1:
@@ -520,7 +521,7 @@ class Renderer:
                         return 3
                 case 4:
                     self.dim_screen()
-                    self.print_str(18, 18, "Controles\n\nZQSD     Se deplacer\nE        Interagir\nLSHIFT   Courir", (1, 1, 1))
+                    self.print_str(18, 18, "Controles\n\nZQSD     Se deplacer\nE        Interagir\nLSHIFT   Courir\nI        Inventaire", (1, 1, 1))
                     c = 1
                     if click_btn == 5:
                         c = .7
@@ -528,6 +529,10 @@ class Renderer:
                     # print(x, y, max_x, max_y)
                     if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
                         return 5
+                case 5:
+                    self.dim_screen()
+                    self.draw_menu_frame()
+                    self.print_str(18, 18, "Inventaire", (0, 0, 0))
                 case _:
                     self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0

@@ -9,6 +9,7 @@ import GAME.map as mp
 from GAME.entity import Entity
 from GAME.pathfinding import a_star
 from GAME.math import lerp
+from GAME.item import Item
 import random
 
 class Game:
@@ -51,9 +52,12 @@ class Game:
 
         self.in_menu = 1
         self.action_counter = 0
+        self.inventory_counter = 0
         self.click_button = 0
         self.mouse_clicked = False
         self.mouse_released = False
+
+        self.inventory = [None] * GAME.defines.INVENTORY_SIZE
 
         self.entities = []
 
@@ -106,7 +110,47 @@ class Game:
         else:
             self.action_counter = 0
 
-        if self.in_menu != 0 and self.action_counter != 1:
+        if keys[pygame.K_i]:
+            self.inventory_counter += 1
+        else:
+            self.inventory_counter = 0
+
+        if self.action_counter == 1:
+            if self.in_menu == 0:
+                dX = -math.sin(self.player_angle) 
+                dY = math.cos(self.player_angle) 
+                if dX == 0:
+                    dX = 0.001
+                if dY == 0:
+                    dY = 0.001
+                wall_dist, hit, map_x, map_y, last_offset, step_x, step_y = cast_ray(dX, dY, self.player_x, self.player_y, self.player_angle, _map._map, _map.size)
+                wall_dist += 0.01
+                pos_x, pos_y = wall_dist * dX + self.player_x, wall_dist * dY + self.player_y
+                menu = _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]]
+                if hit and menu != 0 and wall_dist < GAME.defines.MAX_PLAYER_INTERACTION_RANGE:
+                    self.in_menu = menu
+                    pygame.mouse.set_visible(True)
+                    pygame.event.set_grab(False)
+
+                    pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
+                    self.last_mouse_reset = True
+            elif self.in_menu != 1 and self.in_menu != 3 and self.in_menu != 4:
+                self.in_menu = 0
+                pygame.mouse.set_visible(False)
+                pygame.event.set_grab(True)
+
+        if self.inventory_counter == 1:
+            if self.in_menu == 0:
+                self.in_menu = 5
+                pygame.mouse.set_visible(True)
+                pygame.event.set_grab(False)
+            elif self.in_menu == 5:
+                self.in_menu = 0
+                pygame.mouse.set_visible(False)
+                pygame.event.set_grab(True)
+
+        # if self.in_menu != 0 and self.action_counter != 1:
+        if self.in_menu != 0:
             return
 
         if self.mouse_moved:
@@ -148,30 +192,6 @@ class Game:
             self.player_y -= math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
             if _map._map[_map.size[0] * int(self.player_y) + int(self.player_x)] != 0:
                 self.player_y += math.cos(self.player_angle + math.pi / 2) * GAME.defines.MOVE_SPEED * delta_time
-
-        if self.action_counter == 1:
-            if self.in_menu == 0:
-                dX = -math.sin(self.player_angle) 
-                dY = math.cos(self.player_angle) 
-                if dX == 0:
-                    dX = 0.001
-                if dY == 0:
-                    dY = 0.001
-                wall_dist, hit, map_x, map_y, last_offset, step_x, step_y = cast_ray(dX, dY, self.player_x, self.player_y, self.player_angle, _map._map, _map.size)
-                wall_dist += 0.01
-                pos_x, pos_y = wall_dist * dX + self.player_x, wall_dist * dY + self.player_y
-                menu = _map.interaction_data[math.floor(pos_x) + math.floor(pos_y) * _map.size[0]]
-                if hit and menu != 0 and wall_dist < GAME.defines.MAX_PLAYER_INTERACTION_RANGE:
-                    self.in_menu = menu
-                    pygame.mouse.set_visible(True)
-                    pygame.event.set_grab(False)
-
-                    pygame.mouse.set_pos((GAME.defines.SCREEN_WIDTH / 2, GAME.defines.SCREEN_HEIGHT / 2))
-                    self.last_mouse_reset = True
-            elif self.in_menu != 1 and self.in_menu != 3 and self.in_menu != 4:
-                self.in_menu = 0
-                pygame.mouse.set_visible(False)
-                pygame.event.set_grab(True)
 
     def update(self, _map: mp.Map):
         deltaTime = self.clock.tick(GAME.defines.MAX_FRAME_RATE) / 1000
@@ -339,7 +359,7 @@ class Game:
             self.handleEvents()
             self.update(map1)
             m_x, m_y =  pygame.mouse.get_pos()
-            menu = renderer.update(GAME.defines.MOVE_SPEED, self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.cam_anim_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
+            menu = renderer.update(self.inventory, GAME.defines.MOVE_SPEED, self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT), self.cam_anim_time, self.in_menu, map1, self.player_x, self.player_y, self.player_z, self.player_angle)
             self.display(renderer.buffer)
 
             if self.mouse_clicked:
