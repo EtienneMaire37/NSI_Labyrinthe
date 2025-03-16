@@ -335,10 +335,13 @@ class Game:
             monster.run_speed = 3
             self.entities.append(monster)
 
+        items = ["RESOURCES/items/sac.png"]
+        renderer.set_item_textures(items)
+
         for i in range(16):
             pos_x, pos_y = self.generate_entity_pos(map, 10)
-            items = ["RESOURCES/items/sac.png"]
-            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .7, items[random.randint(0, 0)], (0, 0, 0), "", False)
+            tex_id = random.randint(0, len(items) - 1)
+            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .7, items[tex_id], (0, 0, 0), "", False, tex_id, tex_id * 10 + random.randint(0, 6))
             renderer.add_entity(item)
             self.entities.append(item)
 
