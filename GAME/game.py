@@ -15,7 +15,8 @@ import random
 class Game:
     def __init__(self, _player_x: float, _player_y: float):
         pygame.init()
-        pygame.mixer.init(channels = 8) # Jusqu'à 8 sons en meme temps
+        # pygame.mixer.init(channels = 17) # Jusqu'à 17 sons en meme temps
+        pygame.mixer.init(channels = 1)
 
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION])
         # pygame.mouse.set_visible(False)
