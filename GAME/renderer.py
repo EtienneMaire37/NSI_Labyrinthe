@@ -11,7 +11,7 @@ import pygame
 import os
 from GAME.item import Item
 
-@njit(fastmath=True, cache=True)
+@njit(fastmath = True, cache = True)
 def numba_draw_rectangle_outline(buffer, x0, y0, x1, y1, color):
     for y in range(y0, y1):
         for x in range(x0, x1):
@@ -20,7 +20,7 @@ def numba_draw_rectangle_outline(buffer, x0, y0, x1, y1, color):
                 buffer[x, y, 1] = color[1]
                 buffer[x, y, 2] = color[2]
 
-@njit(fastmath=True, cache=True)
+@njit(fastmath = True, cache = True)
 def numba_dim_screen(buffer, factor):
     for y in prange(buffer.shape[1]):
         for x in prange(buffer.shape[0]):
@@ -28,7 +28,7 @@ def numba_dim_screen(buffer, factor):
             buffer[x, y, 1] *= factor
             buffer[x, y, 2] *= factor
 
-@njit(fastmath=True, cache=True)
+@njit(fastmath = True, cache = True)
 def numba_draw_menu_frame(buffer, res_x, res_y):
     for i in range(MENU_OUTLINE, res_y - MENU_OUTLINE):
         for j in range(MENU_OUTLINE, res_x - MENU_OUTLINE):
@@ -40,7 +40,7 @@ def numba_draw_menu_frame(buffer, res_x, res_y):
                 buffer[j, i, 1] = 1.0
                 buffer[j, i, 2] = 1.0
 
-@njit(fastmath=True, cache=True)
+@njit(fastmath = True, cache = True)
 def numba_draw_texture(buffer, x, y, w, h, tex):
     tex_h, tex_w = tex.shape[0], tex.shape[1]
     for i in range(h):
@@ -51,6 +51,12 @@ def numba_draw_texture(buffer, x, y, w, h, tex):
                 buffer[x + j, y + i, 0] = tex[tx, ty, 0] / 255
                 buffer[x + j, y + i, 1] = tex[tx, ty, 1] / 255
                 buffer[x + j, y + i, 2] = tex[tx, ty, 2] / 255
+
+@njit(fastmath = True, cache = True)
+def numba_draw_rectangle(buffer, x, y, max_x, max_y, color):
+    for i in range(y, max_y):
+        for j in range(x, max_x):
+            buffer[j][i] = color
 
 # # Implémente la formule de tonemapping de Reinhard 
 # @njit(fastmath = True, cache = True)
@@ -586,6 +592,9 @@ class Renderer:
         tex = self.item_textures[id]
         numba_draw_texture(self.buffer, x, y, sz_x, sz_y, tex)
 
+    def draw_rectangle(self, x, y, max_x, max_y, color):
+        numba_draw_rectangle(self.buffer, x, y, max_x, max_y, color)
+
     def update(self, points: int, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:
             anim = idle_animation(timer, .03 + (mv_speed - 2) * .05)
@@ -757,7 +766,16 @@ class Renderer:
                             if mouse_x >= x_left and mouse_x < x_right and mouse_y >= y_top and mouse_y < y_bottom:
                                 show_pts, pts, pts_x, pts_y = True, inventory[index].value, mouse_x, mouse_y
                 if show_pts:
-                    self.print_str(pts_x, pts_y, f"Points : {pts}", (0, 0, 0))
+                    # _, _, max_x, max_y = self.print_str(pts_x, pts_y, f"Points : {pts}", (0, 0, 0))
+                    # self.draw_rectangle_outline(pts_x - 2, pts_y - 2, max_x + 2, max_y + 2, (.7, .7, .7))
+                    t_str = f"Valeur : {pts}"
+                    x, y, max_x, max_y = pts_x - 2, pts_y - 2, pts_x + len(t_str) * 8, pts_y + 8
+                    self.draw_rectangle_outline(pts_x - 2, pts_y - 2, max_x + 2, max_y + 2, (.7, .7, .7))
+                    # for i in range(pts_y - 1, max_y + 1):
+                    #     for j in range(pts_x - 1, max_x + 1):
+                    #         self.buffer[j][i] = (.9, .9, .9)
+                    self.draw_rectangle(pts_x - 1, pts_y - 1, max_x + 1, max_y + 1, (.9, .9, .9))
+                    _, _, max_x, max_y = self.print_str(pts_x, pts_y, t_str, (0, 0, 0))
             else:
                 self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0
