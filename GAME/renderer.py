@@ -552,7 +552,8 @@ class Renderer:
     #                     self.buffer[j][i][k] *= .5
 
     def delete_entity(self, index):
-        numpy.delete(self.entities, index)
+        self.entities = numpy.delete(self.entities, index)
+        # print(len(self.entities))
 
     def set_item_textures(self, textures_list: list):
         for path in textures_list:

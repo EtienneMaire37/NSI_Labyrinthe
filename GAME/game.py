@@ -343,7 +343,7 @@ class Game:
         renderer.set_item_textures(items)
 
         item_pos = []
-        for i in range(32):
+        for i in range(16):
             if len(item_pos) == 0:
                 pos_x, pos_y = self.generate_entity_pos(map, 8)
             else:
@@ -354,7 +354,7 @@ class Game:
             if tex_id == len(items) - 1:
                 pts = int(-math.log(1 - random.random()) / 0.02)
             else:
-                pts = tex_id * 10 + random.randint(2, 8)
+                pts = tex_id * 10 + random.randint(2, 8) + 10
             item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .6, items[tex_id], (0, 0, 0), "", False, tex_id, pts)
             renderer.add_entity(item)
             self.entities.append(item)
