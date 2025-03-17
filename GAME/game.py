@@ -15,7 +15,7 @@ import random
 class Game:
     def __init__(self, _player_x: float, _player_y: float):
         pygame.init()
-        pygame.mixer.init(channels = 19) # Jusqu'à 19 sons en meme temps
+        pygame.mixer.init(channels = 27) # Jusqu'à 27 sons en meme temps
         # pygame.mixer.init()
 
         pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEMOTION])
@@ -62,7 +62,7 @@ class Game:
 
         self.entities = []
 
-        self.jumpscare_sound = [pygame.mixer.Sound(file = f"RESOURCES/sounds/jumpscare{i}.mp3") for i in range(4, 6)]
+        self.jumpscare_sound = [pygame.mixer.Sound(file = f"RESOURCES/sounds/jumpscare{i}.mp3") for i in range(1, 6)]
         # self.step_sound = [pygame.mixer.Sound(file = f"RESOURCES/sounds/step{i}.{["wav", "mp3"][i > 0]}") for i in range(1, 5)]
         self.step_sound = []
         for i in range(4):
@@ -226,7 +226,7 @@ class Game:
                             self.in_menu = 3    # Game over
                             pygame.mouse.set_visible(True)
                             pygame.event.set_grab(False)
-                            self.jumpscare_sound[random.randint(0, 1)].play()
+                            self.jumpscare_sound[random.randint(0, 4)].play()
 
                         self.follow_path(self.entities[i], deltaTime, _map)
                         self.entities[i].walk_sound_timer += deltaTime
@@ -252,7 +252,7 @@ class Game:
                             if self.inventory[j] == None:
                                 self.inventory[j] = self.entities[i].item
                                 self.delete_entity(renderer, i)
-                                renderer.delete_entity(i)
+                                # renderer.delete_entity(i)
                             i -= 1
                     i += 1
 
@@ -330,6 +330,7 @@ class Game:
             renderer.add_entity(monster)
             monster.detection_radius = 12.
             monster.hearing_radius = 3.5
+            monster.path = []
             # monster.speed = 3
             # monster.run_speed = 4.7
             # monster.speed = 2.5
@@ -338,11 +339,11 @@ class Game:
             monster.run_speed = 3
             self.entities.append(monster)
 
-        items = ["RESOURCES/items/sac.png", "RESOURCES/items/chaudron.png", "RESOURCES/items/coffre.png", "RESOURCES/items/boussole.png", "RESOURCES/items/totem.png", "RESOURCES/items/armure.png"]
+        items = ["RESOURCES/items/sac.png", "RESOURCES/items/chaudron.png", "RESOURCES/items/coffre.png", "RESOURCES/items/boussole.png", "RESOURCES/items/bijou.png", "RESOURCES/items/totem.png", "RESOURCES/items/cristal.png", "RESOURCES/items/armure.png", "RESOURCES/items/mystere.png"]
         renderer.set_item_textures(items)
 
         item_pos = []
-        for i in range(16):
+        for i in range(32):
             if len(item_pos) == 0:
                 pos_x, pos_y = self.generate_entity_pos(map, 8)
             else:
@@ -350,7 +351,11 @@ class Game:
                     pos_x, pos_y = self.generate_entity_pos(map, 8)
             item_pos.append((pos_x, pos_y))
             tex_id = random.randint(0, len(items) - 1)
-            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .6, items[tex_id], (0, 0, 0), "", False, tex_id, tex_id * 10 + random.randint(2, 8))
+            if tex_id == len(items) - 1:
+                pts = int(-math.log(1 - random.random()) / 0.02)
+            else:
+                pts = tex_id * 10 + random.randint(2, 8)
+            item = Entity(pos_x + .5, pos_y + .5, self.player_z - .5, .3, .6, items[tex_id], (0, 0, 0), "", False, tex_id, pts)
             renderer.add_entity(item)
             self.entities.append(item)
 
@@ -375,9 +380,7 @@ class Game:
                             ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
 
         renderer = Renderer(RESOLUTION_X, RESOLUTION_Y)
-        # for i in range(4096):   # Une entité pour 32x32 blocks | bcp trop pour les performances
         self.generate_entities(renderer, map1)
-        # renderer.clean_entities()
 
         while True:
             self.handleEvents()
@@ -388,7 +391,6 @@ class Game:
 
             if self.mouse_clicked:
                 self.click_button = menu
-                # print(self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT))
             if self.mouse_released:
                 if self.click_button == menu:
                     if self.click_button == 1: # Bouton jouer
@@ -396,10 +398,6 @@ class Game:
                         pygame.mouse.set_visible(False)
                         pygame.event.set_grab(True)
                     elif self.click_button == 2:     # Regénérer le labyrinthe
-                        # map1._map, map1.interaction_data = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
-                        # renderer.clean_entities()
-                        # self.entities = []
-                        # self.generate_entities(renderer, map1)
                         GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
                         map1 = mp.Map()
                         map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
@@ -456,9 +454,7 @@ class Game:
             for i in range(min(len(renderer.entities), len(self.entities))):
                 renderer.entities[i]['position'] = self.entities[i].position
                 if self.entities[i].hostile:
-                    # renderer.entities[i] = self.entities[i]
                     self.entities[i].position = (self.entities[i].position[0] + .5, self.entities[i].position[1] + .5, self.entities[i].position[2])
-                    # print(renderer.entities[i]['position'])
 
                     entity = self.entities[i]
                     distance = math.sqrt((entity.position[0] - self.player_x)**2 + (entity.position[1] - self.player_y)**2)

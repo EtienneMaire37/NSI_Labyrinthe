@@ -99,7 +99,7 @@ def maze_to_map(sz_x: int, sz_y: int):
                 pos = (x_cell + y_cell * sz_x) * 2 - 1
                 map_grid[pos] = 3
 
-    for i in range(int(.6 * sz_x * sz_y)):
+    for i in range(int(.9 * sz_x * sz_y)):
         map_grid[randint(0, sz_x * sz_y - 1)] = 0
 
     for y in range(sz_y):
