@@ -157,6 +157,9 @@ def render_frame(buffer: list, zbuffer: list, player_x: float, player_y: float, 
             vector_to_entity = (float(pos_x - player_x), float(pos_y - player_y))
             distance_to_entity = math.sqrt(vector_to_entity[0]**2 + vector_to_entity[1]**2)
 
+            if distance_to_entity >= 10:
+                continue
+            
             vector_to_entity = (vector_to_entity[0] / float(distance_to_entity), vector_to_entity[1] / float(distance_to_entity))
                 
             angle_to_entity = math.acos(dot_2d(vector_to_entity, (0, 1)))
@@ -428,17 +431,16 @@ class Renderer:
         x_offset = 0
         max_x, max_y = x, y
         for i in range(len(str)):
-            match str[i]:
-                case '\n':
-                    y += FONT_SIZE
-                    max_y = max(max_y, y)
-                    x -= x_offset
-                    x_offset = 0
-                case _:
-                    self.print_char(x, y, str[i], color)
-                    x += FONT_SIZE
-                    x_offset += FONT_SIZE
-                    max_x = max(max_x, x)
+            if str[i] == '\n':
+                y += FONT_SIZE
+                max_y = max(max_y, y)
+                x -= x_offset
+                x_offset = 0
+            else:
+                self.print_char(x, y, str[i], color)
+                x += FONT_SIZE
+                x_offset += FONT_SIZE
+                max_x = max(max_x, x)
         return (x, y, max_x, max_y + FONT_SIZE)
 
     def draw_menu_frame(self):
@@ -553,108 +555,107 @@ class Renderer:
             5 : Inventaire
             """
             btn = 0
-            match in_menu:
-                case 1:
-                    self.dim_screen()
-                    self.print_str(18, 18, "Menu principal", (1, 1, 1))
-                    c = 1
-                    if click_btn == 1:
-                        c = .7
-                    x, y, max_x, max_y = self.draw_button(18, 36, "Jouer", (c, c, c))
-                    # print(x, y, max_x, max_y)
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        btn = 1
-                    
-                    c = 1
-                    if click_btn == 4:
-                        c = .7
-                    x, y, max_x, max_y = self.draw_button(18, 36 + 16, "Contrôles", (c, c, c))
-                    # print(x, y, max_x, max_y)
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        btn = 4
-                    return btn
-                case 2:
-                    self.dim_screen()
-                    self.draw_menu_frame()
-                    self.print_str(18, 18, "Terminal", (0, 0, 0))
-                    c = 1
-                    if click_btn == 2:
-                        c = .7
-                    c = 1 - c
-                    x, y, max_x, max_y = self.draw_button(18, 36, "Recharger la map", (c, c, c))
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        btn = 2
-                    
-                    c = 1
-                    if click_btn == 6:
-                        c = .7
-                    c = 1 - c
-                    x, y, max_x, max_y = self.draw_button(18, 36 + 16, "Vendre ses objets", (c, c, c))
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        btn = 6
-                    
-                    self.print_str(18, 36 + 32, f"Points : {points}", (0, 0, 0))
+            if in_menu == 1:
+                self.dim_screen()
+                self.print_str(18, 18, "Menu principal", (1, 1, 1))
+                c = 1
+                if click_btn == 1:
+                    c = .7
+                x, y, max_x, max_y = self.draw_button(18, 36, "Jouer", (c, c, c))
+                # print(x, y, max_x, max_y)
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    btn = 1
+                
+                c = 1
+                if click_btn == 4:
+                    c = .7
+                x, y, max_x, max_y = self.draw_button(18, 36 + 16, "Contrôles", (c, c, c))
+                # print(x, y, max_x, max_y)
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    btn = 4
+                return btn
+            elif in_menu == 2:
+                self.dim_screen()
+                self.draw_menu_frame()
+                self.print_str(18, 18, "Terminal", (0, 0, 0))
+                c = 1
+                if click_btn == 2:
+                    c = .7
+                c = 1 - c
+                x, y, max_x, max_y = self.draw_button(18, 36, "Recharger la map", (c, c, c))
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    btn = 2
+                
+                c = 1
+                if click_btn == 6:
+                    c = .7
+                c = 1 - c
+                x, y, max_x, max_y = self.draw_button(18, 36 + 16, "Vendre ses objets", (c, c, c))
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    btn = 6
+                
+                self.print_str(18, 36 + 32, f"Points : {points}", (0, 0, 0))
 
-                    c = 1
-                    if click_btn == 8:
-                        c = .7
-                    c = 1 - c
-                    x, y, max_x, max_y = self.draw_button(18, self.res_y - 19 - 16, "Charger une partie", (c, c, c))
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        btn = 8
+                c = 1
+                if click_btn == 8:
+                    c = .7
+                c = 1 - c
+                x, y, max_x, max_y = self.draw_button(18, self.res_y - 19 - 16, "Charger une partie", (c, c, c))
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    btn = 8
 
-                    c = 1
-                    if click_btn == 7:
-                        c = .7
-                    c = 1 - c
-                    x, y, max_x, max_y = self.draw_button(18, self.res_y - 19 - 32, "Sauvegarder", (c, c, c))
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        btn = 7
+                c = 1
+                if click_btn == 7:
+                    c = .7
+                c = 1 - c
+                x, y, max_x, max_y = self.draw_button(18, self.res_y - 19 - 32, "Sauvegarder", (c, c, c))
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    btn = 7
 
-                    return btn
-                case 3:
-                    for i in range(self.res_y):
-                        for j in range(self.res_x):
-                            self.buffer[j][i] = (0, 0, 0)
-                    self.print_str(18, 18, "GAME OVER", (1, 0, 0))
-                    c = 1
-                    if click_btn == 3:
-                        c = .7
-                    x, y, max_x, max_y = self.draw_button(18, 36, "Rejouer", (c, c, c))
-                    # print(x, y, max_x, max_y)
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        return 3
-                case 4:
-                    self.dim_screen()
-                    self.print_str(18, 18, "Contrôles\n\nZQSD     Se déplacer\nE        Interagir\nLSHIFT   Courir\nI        Inventaire", (1, 1, 1))
-                    c = 1
-                    if click_btn == 5:
-                        c = .7
-                    x, y, max_x, max_y = self.draw_button(18, 18 + 6 * 16, "Retour", (c, c, c))
-                    # print(x, y, max_x, max_y)
-                    if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
-                        return 5
-                case 5:
-                    self.dim_screen()
-                    self.draw_menu_frame()
-                    self.print_str(18, 18, "Inventaire", (0, 0, 0))
-                    show_pts, pts, pts_x, pts_y = False, 0, 0, 0
-                    for i in range(8):
-                        for j in range(8):
-                            x_left, x_right = j * 17 + 21, j * 17 + 37
-                            y_top, y_bottom = i * 17 + 35, i * 17 + 18 + 32
-                            index = j + 8 * i
-                            if inventory[index] == None:
-                                c = (.7, .7, .7)
-                            else:
-                                c = (.7, .3, .3)
-                                self.draw_texture(x_left + 1, y_top + 1, 13, 13, inventory[index].tex_id)
-                            self.draw_rectangle_outline(x_left, y_top, x_right, y_bottom, c)
-                            if inventory[index] != None:
-                                if mouse_x >= x_left and mouse_x < x_right and mouse_y >= y_top and mouse_y < y_bottom:
-                                    show_pts, pts, pts_x, pts_y = True, inventory[index].value, mouse_x, mouse_y
-                    if show_pts:
-                        self.print_str(pts_x, pts_y, f"Points : {pts}", (0, 0, 0))
-                case _:
-                    self.print_str(18, 18, "Menu non defini", (0, 0, 0))
+                return btn
+            elif in_menu == 3:
+                for i in range(self.res_y):
+                    for j in range(self.res_x):
+                        self.buffer[j][i] = (0, 0, 0)
+                self.print_str(18, 18, "GAME OVER", (1, 0, 0))
+                c = 1
+                if click_btn == 3:
+                    c = .7
+                x, y, max_x, max_y = self.draw_button(18, 36, "Rejouer", (c, c, c))
+                # print(x, y, max_x, max_y)
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    return 3
+            elif in_menu == 4:
+                self.dim_screen()
+                self.print_str(18, 18, "Contrôles\n\nZQSD     Se déplacer\nE        Interagir\nLSHIFT   Courir\nI        Inventaire", (1, 1, 1))
+                c = 1
+                if click_btn == 5:
+                    c = .7
+                x, y, max_x, max_y = self.draw_button(18, 18 + 6 * 16, "Retour", (c, c, c))
+                # print(x, y, max_x, max_y)
+                if mouse_x >= x and mouse_y >= y and mouse_x < max_x and mouse_y < max_y:
+                    return 5
+            elif in_menu == 5:
+                self.dim_screen()
+                self.draw_menu_frame()
+                self.print_str(18, 18, "Inventaire", (0, 0, 0))
+                show_pts, pts, pts_x, pts_y = False, 0, 0, 0
+                for i in range(8):
+                    for j in range(8):
+                        x_left, x_right = j * 17 + 21, j * 17 + 37
+                        y_top, y_bottom = i * 17 + 35, i * 17 + 18 + 32
+                        index = j + 8 * i
+                        if inventory[index] == None:
+                            c = (.7, .7, .7)
+                        else:
+                            c = (.7, .3, .3)
+                            self.draw_texture(x_left + 1, y_top + 1, 13, 13, inventory[index].tex_id)
+                        self.draw_rectangle_outline(x_left, y_top, x_right, y_bottom, c)
+                        if inventory[index] != None:
+                            if mouse_x >= x_left and mouse_x < x_right and mouse_y >= y_top and mouse_y < y_bottom:
+                                show_pts, pts, pts_x, pts_y = True, inventory[index].value, mouse_x, mouse_y
+                if show_pts:
+                    self.print_str(pts_x, pts_y, f"Points : {pts}", (0, 0, 0))
+            else:
+                self.print_str(18, 18, "Menu non defini", (0, 0, 0))
             return 0

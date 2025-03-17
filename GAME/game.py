@@ -199,7 +199,7 @@ class Game:
         deltaTime = self.clock.tick(GAME.defines.MAX_FRAME_RATE) / 1000
         # print(deltaTime)
 
-        if (not self.loading) and deltaTime < .1:
+        if (not self.loading): #  and deltaTime < .1:
             self.total_time += deltaTime
             self.cam_anim_time += deltaTime * (1 + (GAME.defines.MOVE_SPEED - 2) * 5)
 
@@ -391,70 +391,67 @@ class Game:
                 # print(self.click_button, int(m_x * RESOLUTION_X / SCREEN_WIDTH), int(m_y * RESOLUTION_Y / SCREEN_HEIGHT))
             if self.mouse_released:
                 if self.click_button == menu:
-                    match self.click_button:
-                        case 1:     # Bouton jouer
-                            self.in_menu = 0 
-                            pygame.mouse.set_visible(False)
-                            pygame.event.set_grab(True)
-                        case 2:     # Regénérer le labyrinthe
-                            # map1._map, map1.interaction_data = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
-                            # renderer.clean_entities()
-                            # self.entities = []
-                            # self.generate_entities(renderer, map1)
-                            GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
-                            map1 = mp.Map()
-                            map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
-                                                ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
-                            renderer.clean_entities()
-                            self.entities = []
-                            self.generate_entities(renderer, map1)
-                        case 3:     # Rejouer
-                            GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
-                            map1 = mp.Map()
-                            map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
-                                                ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
-                            renderer.clean_entities()
-                            self.entities = []
-                            self.player_x, self.player_y = (GAME.defines.MAP1_SIZE_X / 2, GAME.defines.MAP1_SIZE_Y / 2 + 1)
-                            self.generate_entities(renderer, map1)
-                            self.in_menu = 1
-                            self.player_angle = math.pi / 2
-                            GAME.defines.MOVE_SPEED = 2
-                            self.points = 0
-                            self.inventory = [None] * GAME.defines.INVENTORY_SIZE
-                        case 4:     # Montre les controles
-                            self.in_menu = 4
-                        case 5:     # Retour (controles)
-                            self.in_menu = 1
-                        case 6:     # Vendre objets
-                            for i in range(GAME.defines.INVENTORY_SIZE):
-                                if self.inventory[i] != None:
-                                    self.points += self.inventory[i].value
-                                    self.inventory[i] = None
-                        case 7:     # Sauvegarder
-                            f = open("SAVES/save.txt", "w")
-                            f.write(str(self.points) + "\n")
-                            for i in range(GAME.defines.INVENTORY_SIZE):
-                                if self.inventory[i] == None:
-                                    f.write("0 0\n")
-                                else:
-                                    f.write(f"{self.inventory[i].tex_id} {self.inventory[i].value}\n")
-                            f.close()
-                        case 8:     # Charger une partie
-                            f = open("SAVES/save.txt", "r") 
-                            text = f.read()
-                            text = text.split('\n')
-                            self.points = int(text[0])
-                            for i in range(GAME.defines.INVENTORY_SIZE):
-                                line = text[i + 1]
-                                if line == "0 0":
-                                    self.inventory[i] = None
-                                else:
-                                    line = line.split(" ")
-                                    self.inventory[i] = Item(int(line[0]), int(line[1]))
-                            f.close()
-                        case _:
-                            pass
+                    if self.click_button == 1: # Bouton jouer
+                        self.in_menu = 0 
+                        pygame.mouse.set_visible(False)
+                        pygame.event.set_grab(True)
+                    elif self.click_button == 2:     # Regénérer le labyrinthe
+                        # map1._map, map1.interaction_data = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                        # renderer.clean_entities()
+                        # self.entities = []
+                        # self.generate_entities(renderer, map1)
+                        GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                        map1 = mp.Map()
+                        map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
+                                            ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
+                        renderer.clean_entities()
+                        self.entities = []
+                        self.generate_entities(renderer, map1)
+                    elif self.click_button == 3:     # Rejouer
+                        GAME.defines.MAP1, GAME.defines.MAP1_INTERACT = GAME.maze.maze_to_map(GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y)
+                        map1 = mp.Map()
+                        map1.load_from_list(GAME.defines.MAP1, GAME.defines.MAP1_INTERACT, GAME.defines.MAP1_SIZE_X, GAME.defines.MAP1_SIZE_Y,
+                                            ["RESOURCES/pack/TILE_2C.PNG", "RESOURCES/pack/082.png", "RESOURCES/pack/TECH_1C.PNG", "RESOURCES/pack/TECH_1E.PNG", "RESOURCES/pack/TECH_2F.PNG", "RESOURCES/pack/CONSOLE_1B.PNG", "RESOURCES/pack/TECH_3B.PNG", "RESOURCES/pack/SUPPORT_4A.PNG"], 0, 1)
+                        renderer.clean_entities()
+                        self.entities = []
+                        self.player_x, self.player_y = (GAME.defines.MAP1_SIZE_X / 2, GAME.defines.MAP1_SIZE_Y / 2 + 1)
+                        self.generate_entities(renderer, map1)
+                        self.in_menu = 1
+                        self.player_angle = math.pi / 2
+                        GAME.defines.MOVE_SPEED = 2
+                        self.points = 0
+                        self.inventory = [None] * GAME.defines.INVENTORY_SIZE
+                    elif self.click_button == 4:     # Montre les controles
+                        self.in_menu = 4
+                    elif self.click_button == 5:     # Retour (controles)
+                        self.in_menu = 1
+                    elif self.click_button == 6:     # Vendre objets
+                        for i in range(GAME.defines.INVENTORY_SIZE):
+                            if self.inventory[i] != None:
+                                self.points += self.inventory[i].value
+                                self.inventory[i] = None
+                    elif self.click_button == 7:     # Sauvegarder
+                        f = open("SAVES/save.txt", "w")
+                        f.write(str(self.points) + "\n")
+                        for i in range(GAME.defines.INVENTORY_SIZE):
+                            if self.inventory[i] == None:
+                                f.write("0 0\n")
+                            else:
+                                f.write(f"{self.inventory[i].tex_id} {self.inventory[i].value}\n")
+                        f.close()
+                    elif self.click_button == 8:     # Charger une partie
+                        f = open("SAVES/save.txt", "r") 
+                        text = f.read()
+                        text = text.split('\n')
+                        self.points = int(text[0])
+                        for i in range(GAME.defines.INVENTORY_SIZE):
+                            line = text[i + 1]
+                            if line == "0 0":
+                                self.inventory[i] = None
+                            else:
+                                line = line.split(" ")
+                                self.inventory[i] = Item(int(line[0]), int(line[1]))
+                        f.close()
                 self.click_button = 0
             for i in range(min(len(renderer.entities), len(self.entities))):
                 renderer.entities[i]['position'] = self.entities[i].position
