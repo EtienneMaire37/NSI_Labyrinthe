@@ -11,6 +11,47 @@ import pygame
 import os
 from GAME.item import Item
 
+@njit(fastmath=True, cache=True)
+def numba_draw_rectangle_outline(buffer, x0, y0, x1, y1, color):
+    for y in range(y0, y1):
+        for x in range(x0, x1):
+            if x == x0 or x == x1-1 or y == y0 or y == y1-1:
+                buffer[x, y, 0] = color[0]
+                buffer[x, y, 1] = color[1]
+                buffer[x, y, 2] = color[2]
+
+@njit(fastmath=True, cache=True)
+def numba_dim_screen(buffer, factor):
+    for y in prange(buffer.shape[1]):
+        for x in prange(buffer.shape[0]):
+            buffer[x, y, 0] *= factor
+            buffer[x, y, 1] *= factor
+            buffer[x, y, 2] *= factor
+
+@njit(fastmath=True, cache=True)
+def numba_draw_menu_frame(buffer, res_x, res_y):
+    for i in range(MENU_OUTLINE, res_y - MENU_OUTLINE):
+        for j in range(MENU_OUTLINE, res_x - MENU_OUTLINE):
+            if (i == MENU_OUTLINE or i == res_y - MENU_OUTLINE - 1 or 
+                j == MENU_OUTLINE or j == res_x - MENU_OUTLINE - 1 or 
+                (MENU_OUTLINE + MENU_OUTLINE2 <= i <= res_y - MENU_OUTLINE - MENU_OUTLINE2 - 1 and 
+                 MENU_OUTLINE + MENU_OUTLINE2 <= j <= res_x - MENU_OUTLINE - MENU_OUTLINE2 - 1)):
+                buffer[j, i, 0] = 1.0
+                buffer[j, i, 1] = 1.0
+                buffer[j, i, 2] = 1.0
+
+@njit(fastmath=True, cache=True)
+def numba_draw_texture(buffer, x, y, w, h, tex):
+    tex_h, tex_w = tex.shape[0], tex.shape[1]
+    for i in range(h):
+        for j in range(w):
+            tx = int(j * tex_w / w)
+            ty = int(i * tex_h / h)
+            if tex[tx, ty, 0] != 0 or tex[tx, ty, 1] != 0 or tex[tx, ty, 2] != 0:
+                buffer[x + j, y + i, 0] = tex[tx, ty, 0] / 255
+                buffer[x + j, y + i, 1] = tex[tx, ty, 1] / 255
+                buffer[x + j, y + i, 2] = tex[tx, ty, 2] / 255
+
 # # Implémente la formule de tonemapping de Reinhard 
 # @njit(fastmath = True, cache = True)
 # def tonemap_channel(c: float):
@@ -342,8 +383,46 @@ def get_char_matrix(c):
     }
     
     matrix = font.get(c, font['?'])
-    # return [[int(bit) for bit in format(row, '016b')] for row in matrix]
-    return [[int(bit) for bit in format(row, '08b')] for row in matrix]
+    return numpy.array([[float(bit) for bit in format(row, '08b')] for row in matrix], dtype=numpy.float32)
+
+FONT_DATA = numpy.zeros((256, 8, 8), dtype=numpy.float32)
+chars = " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+font_dict = get_char_matrix(' ')  # Initialize with default font
+
+for c in chars:
+    matrix = get_char_matrix(c)
+    idx = ord(c)
+    for i in range(8):
+        for j in range(8):
+            FONT_DATA[idx, i, j] = matrix[i][j]
+
+@njit(fastmath=True, cache=True)
+def numba_print_char(buffer, font_data, x, y, char_code, color):
+    for i in range(8):
+        for j in range(8):
+            if font_data[char_code, i, j] > 0.5:
+                px = x + j
+                py = y + i
+                if 0 <= px < buffer.shape[0] and 0 <= py < buffer.shape[1]:
+                    buffer[px, py, 0] = color[0]
+                    buffer[px, py, 1] = color[1]
+                    buffer[px, py, 2] = color[2]
+
+@njit(fastmath=True, cache=True)
+def numba_print_str(buffer, font_data, x, y, text_codes, color):
+    x_offset = 0
+    current_x = x
+    current_y = y
+    for char_code in text_codes:
+        if char_code == 10:  # Newline
+            current_y += 8
+            current_x = x
+            x_offset = 0
+        else:
+            numba_print_char(buffer, font_data, current_x, current_y, char_code, color)
+            current_x += 8
+            x_offset += 8
+    return (current_x, current_y, current_x, current_y + 8)
 
 def idle_animation(time, amplitude = 0.5, speed = 1, offset = 0):
     """
@@ -427,45 +506,45 @@ class Renderer:
                     self.buffer[j + x][i + y] = color
                     # self.invert_pixel(j + 18, i + 18)
 
-    def print_str(self, x, y, str, color):
-        x_offset = 0
-        max_x, max_y = x, y
-        for i in range(len(str)):
-            if str[i] == '\n':
-                y += FONT_SIZE
-                max_y = max(max_y, y)
-                x -= x_offset
-                x_offset = 0
-            else:
-                self.print_char(x, y, str[i], color)
-                x += FONT_SIZE
-                x_offset += FONT_SIZE
-                max_x = max(max_x, x)
-        return (x, y, max_x, max_y + FONT_SIZE)
+    # def print_str(self, x, y, str, color):
+    #     x_offset = 0
+    #     max_x, max_y = x, y
+    #     for i in range(len(str)):
+    #         if str[i] == '\n':
+    #             y += FONT_SIZE
+    #             max_y = max(max_y, y)
+    #             x -= x_offset
+    #             x_offset = 0
+    #         else:
+    #             self.print_char(x, y, str[i], color)
+    #             x += FONT_SIZE
+    #             x_offset += FONT_SIZE
+    #             max_x = max(max_x, x)
+    #     return (x, y, max_x, max_y + FONT_SIZE)
 
-    def draw_menu_frame(self):
-        for i in range(MENU_OUTLINE, self.res_y - MENU_OUTLINE):
-            for j in range(MENU_OUTLINE, self.res_x - MENU_OUTLINE):
-                # self.invert_pixel(j, i)
-                if i == MENU_OUTLINE or i == self.res_y - MENU_OUTLINE - 1 or j == MENU_OUTLINE or j == self.res_x - MENU_OUTLINE - 1 or (MENU_OUTLINE + MENU_OUTLINE2 <= i <= self.res_y - MENU_OUTLINE - MENU_OUTLINE2 - 1 and MENU_OUTLINE + MENU_OUTLINE2 <= j <= self.res_x - MENU_OUTLINE - MENU_OUTLINE2 - 1):
-                    self.buffer[j][i] = (1, 1, 1)
+    # def draw_menu_frame(self):
+    #     for i in range(MENU_OUTLINE, self.res_y - MENU_OUTLINE):
+    #         for j in range(MENU_OUTLINE, self.res_x - MENU_OUTLINE):
+    #             # self.invert_pixel(j, i)
+    #             if i == MENU_OUTLINE or i == self.res_y - MENU_OUTLINE - 1 or j == MENU_OUTLINE or j == self.res_x - MENU_OUTLINE - 1 or (MENU_OUTLINE + MENU_OUTLINE2 <= i <= self.res_y - MENU_OUTLINE - MENU_OUTLINE2 - 1 and MENU_OUTLINE + MENU_OUTLINE2 <= j <= self.res_x - MENU_OUTLINE - MENU_OUTLINE2 - 1):
+    #                 self.buffer[j][i] = (1, 1, 1)
 
-    def draw_rectangle_outline(self, x_low, y_low, x_high, y_high, color):
-        for i in range(y_low, y_high):
-            for j in range(x_low, x_high):
-                if j == x_low or j == x_high - 1 or i == y_low or i == y_high - 1:
-                    self.buffer[j][i] = color
+    # def draw_rectangle_outline(self, x_low, y_low, x_high, y_high, color):
+    #     for i in range(y_low, y_high):
+    #         for j in range(x_low, x_high):
+    #             if j == x_low or j == x_high - 1 or i == y_low or i == y_high - 1:
+    #                 self.buffer[j][i] = color
 
     def draw_button(self, x, y, text, color):
         _x, _y, max_x, max_y = self.print_str(x + 2, y + 2, text, color)
         self.draw_rectangle_outline(x, y, max_x + 2, max_y + 2, color)
         return x, y, max_x + 2, max_y + 2
     
-    def dim_screen(self):
-        for i in range(self.res_y):
-                for j in range(self.res_x):
-                    for k in range(3):
-                        self.buffer[j][i][k] *= .5
+    # def dim_screen(self):
+    #     for i in range(self.res_y):
+    #             for j in range(self.res_x):
+    #                 for k in range(3):
+    #                     self.buffer[j][i][k] *= .5
 
     def delete_entity(self, index):
         numpy.delete(self.entities, index)
@@ -474,15 +553,32 @@ class Renderer:
         for path in textures_list:
             self.item_textures.append(pygame.surfarray.array3d(pygame.image.load(os.path.abspath(path))).astype(numpy.uint8))
 
+    # def draw_texture(self, x, y, sz_x, sz_y, id):
+    #     tex = self.item_textures[id]
+    #     tex_width = len(tex)
+    #     tex_height = len(tex[0])
+    #     for i in range(sz_y):
+    #         for j in range(sz_x):
+    #             c = tex[int(j * tex_width / sz_x), int(i * tex_height / sz_y)]
+    #             if not (c[0] == c[1] == c[2] == 0):
+    #                 self.buffer[j + x, i + y] = (c[0] / 255, c[1] / 255, c[2] / 255)
+
+    def print_str(self, x, y, text, color):
+        text_codes = numpy.array([ord(c) for c in text], dtype=numpy.uint32)
+        return numba_print_str(self.buffer, FONT_DATA, x, y, text_codes, color)
+
+    def draw_menu_frame(self):
+        numba_draw_menu_frame(self.buffer, self.res_x, self.res_y)
+
+    def draw_rectangle_outline(self, x_low, y_low, x_high, y_high, color):
+        numba_draw_rectangle_outline(self.buffer, x_low, y_low, x_high, y_high, color)
+
+    def dim_screen(self):
+        numba_dim_screen(self.buffer, 0.5)
+
     def draw_texture(self, x, y, sz_x, sz_y, id):
         tex = self.item_textures[id]
-        tex_width = len(tex)
-        tex_height = len(tex[0])
-        for i in range(sz_y):
-            for j in range(sz_x):
-                c = tex[int(j * tex_width / sz_x), int(i * tex_height / sz_y)]
-                if not (c[0] == c[1] == c[2] == 0):
-                    self.buffer[j + x, i + y] = (c[0] / 255, c[1] / 255, c[2] / 255)
+        numba_draw_texture(self.buffer, x, y, sz_x, sz_y, tex)
 
     def update(self, points: int, inventory: list, mv_speed: float, click_btn: int, mouse_x: int, mouse_y: int, timer: float, in_menu: int, _map: mp.Map, player_x: float, player_y: float, player_z: float, player_angle: float):
         if in_menu != 3:

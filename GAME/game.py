@@ -3,7 +3,7 @@ import math
 import sys
 # from GAME.defines import * # Ne fonctionne pas car ca duplique les variables
 import GAME.defines
-from GAME.renderer import normalize_vector2d, Renderer
+from GAME.renderer import *
 from GAME.rays import cast_ray
 import GAME.map as mp
 from GAME.entity import Entity
