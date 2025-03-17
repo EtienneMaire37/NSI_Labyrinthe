@@ -396,7 +396,7 @@ for c in chars:
         for j in range(8):
             FONT_DATA[idx, i, j] = matrix[i][j]
 
-@njit(fastmath=True, cache=True)
+@njit(fastmath = True, cache = True)
 def numba_print_char(buffer, font_data, x, y, char_code, color):
     for i in range(8):
         for j in range(8):
@@ -408,7 +408,7 @@ def numba_print_char(buffer, font_data, x, y, char_code, color):
                     buffer[px, py, 1] = color[1]
                     buffer[px, py, 2] = color[2]
 
-@njit(fastmath=True, cache=True)
+@njit(fastmath = True, cache = True)
 def numba_print_str(buffer, font_data, x, y, text_codes, color):
     x_offset = 0
     current_x = x
